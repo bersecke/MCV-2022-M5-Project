@@ -1,12 +1,12 @@
-# MCV-2022-M5-Project
+# MCV-2022-M5-Project  
  
-## Cross-modal Retrieval
+## Cross-modal Retrieval  
 
-### Team 5:
- Brian Guang Jun Du: briandu8@gmail.com
- Ignacio Galve Ceamanos: iceamanos1998@gmail.com
- Eric Henriksson Martí: eckehenrikssonmarti@gmail.com
+### Team 5:  
+ Brian Guang Jun Du: briandu8@gmail.com  
+ Ignacio Galve Ceamanos: iceamanos1998@gmail.com  
+ Eric Henriksson Martí: eckehenrikssonmarti@gmail.com  
  
-#### Week 1 reports:
- [Overleaf](https://www.overleaf.com/read/xynmnjqgzppx)
+#### Week 1 reports:  
+ [Overleaf](https://www.overleaf.com/read/xynmnjqgzppx)  
  [Presentation](https://docs.google.com/presentation/d/1aJbGATrxnL2ENSaG17b9qRQThc6FHBVnSOEjPmZYn7g/edit?usp=sharing)
