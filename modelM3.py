@@ -12,12 +12,15 @@ class ModelM3(nn.Module):
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
-            nn.BatchNorm2d(64),
+            # nn.BatchNorm2d(64),
+            # channel size = 122x122
+            nn.LayerNorm([64, 61, 61]),
             nn.Conv2d(64, 128, 3),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
-            nn.BatchNorm2d(128),
+            # nn.BatchNorm2d(128),
+            nn.LayerNorm([128, 29, 29]),
             nn.Conv2d(128, 256, 3),
             nn.ReLU(inplace=True),
         )

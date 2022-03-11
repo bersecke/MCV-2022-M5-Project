@@ -17,7 +17,7 @@ print(f"Using {device} device")
 TRAIN_DATA_PATH = "MIT_split/train/"
 TEST_DATA_PATH = "MIT_split/test/"
 
-EPOCHS = 100
+EPOCHS = 200
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-3
 
@@ -30,7 +30,8 @@ wandb.config = {
 
 TRANSFORM_IMG = transforms.Compose([
     transforms.Resize(128),
-    transforms.ToTensor(),
+    transforms.RandomHorizontalFlip(),
+    transforms.ToTensor()
     # transforms.Normalize(mean=[0.5, 0.5, 0.5],
     #                      std=[0.5, 0.5, 0.5] )
     ])
@@ -46,21 +47,19 @@ for X, y in test_dataloader:
     break
 
 
-model = ModelM3().to(device)
-# print(model)
+def weights_init_normal(m):
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight.data, nonlinearity='relu')
+        nn.init.constant_(m.bias.data, 0)
+    elif isinstance(m, nn.Linear):
+        nn.init.xavier_normal_(m.weight.data, gain=nn.init.calculate_gain('relu'))
+        nn.init.constant_(m.bias.data, 0)
+    elif isinstance(m, nn.BatchNorm2d):
+        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+        torch.nn.init.constant_(m.bias.data, 0.0)
 
-loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-loss_fn = loss_fn.to(device)
-
-def calculate_accuracy(y_pred, y):
-    top_pred = y_pred.argmax(1, keepdim=True)
-    correct = top_pred.eq(y.view_as(top_pred)).sum()
-    acc = correct.float() / y.shape[0]
-    return acc
-
-def train(dataloader, model, loss_fn, optimizer, epoch):
+def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     model.train()
     epoch_loss, correct = 0, 0
@@ -80,10 +79,10 @@ def train(dataloader, model, loss_fn, optimizer, epoch):
         correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     loss = epoch_loss / len(dataloader)
-    acc = correct / len(dataloader)
+    acc = correct / size
     print(f"Training loss: {loss:>7f}, Training accuracy: {acc:>7f}")
-    wandb.log({"loss": loss, "epoch": t})
-    wandb.log({"accuracy": acc, "epoch": t})
+    wandb.log({"Train loss": loss,
+                "Train accuracy": acc})
 
 
 
@@ -100,14 +99,25 @@ def test(dataloader, model, loss_fn):
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
     correct /= size
+    wandb.log({"Valid loss": test_loss, "epoch": t,
+                "Valid accuracy": correct, "epoch": t})
+
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
+# Create model
+model = ModelM3().to(device)
+# print(model)
 
+#Define criterion function and optimizer
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+wandb.watch(model)
+
+#initialize weights
+# model.apply(weights_init_normal)
 
 for t in range(EPOCHS):
     print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer, t)
+    train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
 print("Done!")
-
-wandb.watch(model)
