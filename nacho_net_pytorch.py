@@ -16,11 +16,11 @@ BATCH_SIZE = 64
 LEARNING_RATE = 1e-3
 
 TRANSFORM_IMG = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
+    transforms.Resize(256),
+    transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225] )
+    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                         std=[0.5, 0.5, 0.5] )
     ])
 
 train_data = ImageFolder(root=TRAIN_DATA_PATH, transform=TRANSFORM_IMG)
@@ -52,10 +52,10 @@ class NeuralNetwork(nn.Module):
             nn.Conv2d(128, 256, 3),
             nn.ReLU(inplace=True),
         )
-        self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.classifier = nn.Sequential(
-            nn.Dropout(),
-            nn.Linear(256*6*6, 8),
+            nn.Dropout(0.3),
+            nn.Linear(256, 8),
             nn.Softmax()
         )
 
