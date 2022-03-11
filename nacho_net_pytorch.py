@@ -7,6 +7,10 @@ from torchvision.datasets import ImageFolder
 from torchvision import transforms
 from modelM3 import ModelM3
 
+import wandb
+
+wandb.init(project="test-project", entity="fantastic5")
+
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
 
@@ -16,6 +20,12 @@ TEST_DATA_PATH = "MIT_split/test/"
 EPOCHS = 100
 BATCH_SIZE = 16
 LEARNING_RATE = 1e-3
+
+wandb.config = {
+  "learning_rate": LEARNING_RATE,
+  "epochs": EPOCHS,
+  "batch_size": BATCH_SIZE
+}
 
 TRANSFORM_IMG = transforms.Compose([
     transforms.Resize(128),
@@ -55,6 +65,9 @@ def train(dataloader, model, loss_fn, optimizer):
         pred = model(X)
         loss = loss_fn(pred, y)
 
+        # DOUBLE CHECK!
+        wandb.log({"loss": loss})
+
         # Backpropagation
         loss.backward()
         optimizer.step()
@@ -87,3 +100,5 @@ for t in range(EPOCHS):
     train(train_dataloader, model, loss_fn, optimizer)
     test(test_dataloader, model, loss_fn)
 print("Done!")
+
+wandb.watch(model)
