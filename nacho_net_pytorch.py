@@ -6,7 +6,7 @@ from torchvision.datasets import ImageFolder
 
 from torchvision import transforms
 from modelM3 import ModelM3
-
+from tqdm import tqdm
 import wandb
 
 wandb.init(project="test-project", entity="fantastic5")
@@ -24,7 +24,8 @@ LEARNING_RATE = 1e-3
 wandb.config = {
   "learning_rate": LEARNING_RATE,
   "epochs": EPOCHS,
-  "batch_size": BATCH_SIZE
+  "batch_size": BATCH_SIZE,
+  "architecture" : "CNN",
 }
 
 TRANSFORM_IMG = transforms.Compose([
@@ -51,12 +52,19 @@ model = ModelM3().to(device)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
+loss_fn = loss_fn.to(device)
 
+def calculate_accuracy(y_pred, y):
+    top_pred = y_pred.argmax(1, keepdim=True)
+    correct = top_pred.eq(y.view_as(top_pred)).sum()
+    acc = correct.float() / y.shape[0]
+    return acc
 
-def train(dataloader, model, loss_fn, optimizer):
+def train(dataloader, model, loss_fn, optimizer, epoch):
     size = len(dataloader.dataset)
     model.train()
-    for batch, (X, y) in enumerate(dataloader):
+    epoch_loss, correct = 0, 0
+    for (X, y) in tqdm(dataloader, desc='Training', leave=False):
         X, y = X.to(device), y.to(device)
 
         optimizer.zero_grad()
@@ -65,16 +73,17 @@ def train(dataloader, model, loss_fn, optimizer):
         pred = model(X)
         loss = loss_fn(pred, y)
 
-        # DOUBLE CHECK!
-        wandb.log({"loss": loss})
-
         # Backpropagation
         loss.backward()
         optimizer.step()
+        epoch_loss += loss.item()
+        correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
-        if batch % 100 == 0:
-            loss, current = loss.item(), batch * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+    loss = epoch_loss / len(dataloader)
+    acc = correct / len(dataloader)
+    print(f"Training loss: {loss:>7f}, Training accuracy: {acc:>7f}")
+    wandb.log({"loss": loss, "epoch": t})
+    wandb.log({"accuracy": acc, "epoch": t})
 
 
 
@@ -97,7 +106,7 @@ def test(dataloader, model, loss_fn):
 
 for t in range(EPOCHS):
     print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer)
+    train(train_dataloader, model, loss_fn, optimizer, t)
     test(test_dataloader, model, loss_fn)
 print("Done!")
 
