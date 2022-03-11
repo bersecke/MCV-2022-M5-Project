@@ -81,8 +81,8 @@ def train(dataloader, model, loss_fn, optimizer):
     loss = epoch_loss / len(dataloader)
     acc = correct / size
     print(f"Training loss: {loss:>7f}, Training accuracy: {acc:>7f}")
-    wandb.log({"Train loss": loss,
-                "Train accuracy": acc})
+    wandb.log({"Train loss": loss, "epoch": t,
+                "Train accuracy": acc, "epoch": t})
 
 
 
