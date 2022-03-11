@@ -81,9 +81,7 @@ def train(dataloader, model, loss_fn, optimizer):
     loss = epoch_loss / len(dataloader)
     acc = correct / size
     print(f"Training loss: {loss:>7f}, Training accuracy: {acc:>7f}")
-    wandb.log({"Train loss": loss,
-                "Train accuracy": acc})
-
+    return loss, acc
 
 
 def test(dataloader, model, loss_fn):
@@ -99,10 +97,9 @@ def test(dataloader, model, loss_fn):
             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
     correct /= size
-    wandb.log({"Valid loss": test_loss, "epoch": t,
-                "Valid accuracy": correct, "epoch": t})
-
     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+
+    return test_loss, correct
 
 # Create model
 model = ModelM3().to(device)
@@ -118,6 +115,12 @@ wandb.watch(model)
 
 for t in range(EPOCHS):
     print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer)
-    test(test_dataloader, model, loss_fn)
+    train_loss, train_acc = train(train_dataloader, model, loss_fn, optimizer)
+    test_loss, test_acc = test(test_dataloader, model, loss_fn)
+
+    wandb.log({"Train loss": train_loss,
+                "Train accuracy": train_acc,
+                "Valid loss": test_loss,
+                "Valid accuracy": test_acc, "epoch": t})
+
 print("Done!")
