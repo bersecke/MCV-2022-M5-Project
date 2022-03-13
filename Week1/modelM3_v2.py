@@ -2,7 +2,7 @@ import torch
 from torch import nn
 
 # Define model
-class ModelM3(nn.Module):
+class ModelM3(nn.Module): 
     def __init__(self):
         super(ModelM3, self).__init__()
         self.features = nn.Sequential(
@@ -14,7 +14,8 @@ class ModelM3(nn.Module):
             nn.MaxPool2d(2),
             # nn.BatchNorm2d(64),
             # channel size = 122x122
-            nn.LayerNorm([64, 61, 61]),
+            # nn.LayerNorm([64, 61, 61]),
+            nn.GroupNorm(1, 64),
             nn.Conv2d(64, 128, 3),
             # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64),
             # nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1),
@@ -22,7 +23,8 @@ class ModelM3(nn.Module):
 
             nn.MaxPool2d(2),
             # nn.BatchNorm2d(128),
-            nn.LayerNorm([128, 29, 29]),
+            # nn.LayerNorm([128, 29, 29]),
+            nn.GroupNorm(1, 128),
             nn.Conv2d(128, 256, 3),
             # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128),
             # nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1),
