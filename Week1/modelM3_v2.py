@@ -8,21 +8,21 @@ class ModelM3(nn.Module):
         self.features = nn.Sequential(
             
             nn.BatchNorm2d(3),
-            nn.Conv2d(3, 64, 7),
+            nn.Conv2d(3, 64, 7, padding="same"),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
             nn.GroupNorm(1, 64), #Equivalent to layer normalization
             # nn.Conv2d(64, 128, 3),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64),
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding="same"),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1, padding="same"),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
             nn.GroupNorm(1, 128), #Equivalent to layer normalization
             # nn.Conv2d(128, 256, 3),
-            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128),
-            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128, padding="same"),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1, padding="same"),
             nn.ReLU(inplace=True),
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
