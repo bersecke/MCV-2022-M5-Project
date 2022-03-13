@@ -12,29 +12,24 @@ class ModelM3(nn.Module):
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
-            # nn.BatchNorm2d(64),
-            # channel size = 122x122
-            # nn.LayerNorm([64, 61, 61]),
-            nn.GroupNorm(1, 64),
-            nn.Conv2d(64, 128, 3),
-            # nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64),
-            # nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1),
+            nn.GroupNorm(1, 64), #Equivalent to layer normalization
+            # nn.Conv2d(64, 128, 3),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(2),
-            # nn.BatchNorm2d(128),
-            # nn.LayerNorm([128, 29, 29]),
-            nn.GroupNorm(1, 128),
-            nn.Conv2d(128, 256, 3),
-            # nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128),
-            # nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1),
+            nn.GroupNorm(1, 128), #Equivalent to layer normalization
+            # nn.Conv2d(128, 256, 3),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1),
             nn.ReLU(inplace=True),
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.classifier = nn.Sequential(
             nn.Dropout(0.3),
             nn.Linear(256, 8),
-            # nn.Softmax()
+            # nn.Softmax() #Softmax already included in the considered loss function
         )
 
     def forward(self, x):
