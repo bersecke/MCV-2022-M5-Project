@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 
 from torchvision import transforms
-from modelM3_v2 import ModelM3
+from model_architecture import ModelM3
 from tqdm import tqdm
 import wandb
 
