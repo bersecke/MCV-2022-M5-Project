@@ -31,9 +31,9 @@ wandb.config = {
 TRANSFORM_IMG = transforms.Compose([
     transforms.Resize(128),
     transforms.RandomHorizontalFlip(),
-    transforms.ToTensor()
-    # transforms.Normalize(mean=[0.5, 0.5, 0.5],
-    #                      std=[0.5, 0.5, 0.5] )
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.5, 0.5, 0.5],
+                         std=[0.5, 0.5, 0.5] )
     ])
 
 train_data = ImageFolder(root=TRAIN_DATA_PATH, transform=TRANSFORM_IMG)
