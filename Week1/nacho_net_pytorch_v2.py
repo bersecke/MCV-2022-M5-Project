@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision.datasets import ImageFolder
 
 from torchvision import transforms
-from modelM3 import ModelM3
+from modelM3_v2 import ModelM3
 from tqdm import tqdm
 import wandb
 
@@ -47,16 +47,16 @@ for X, y in test_dataloader:
     break
 
 
-def weights_init_normal(m):
-    if isinstance(m, nn.Conv2d):
-        nn.init.kaiming_normal_(m.weight.data, nonlinearity='relu')
-        nn.init.constant_(m.bias.data, 0)
-    elif isinstance(m, nn.Linear):
-        nn.init.xavier_normal_(m.weight.data, gain=nn.init.calculate_gain('relu'))
-        nn.init.constant_(m.bias.data, 0)
-    elif isinstance(m, nn.BatchNorm2d):
-        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
-        torch.nn.init.constant_(m.bias.data, 0.0)
+# def weights_init_normal(m):
+#     if isinstance(m, nn.Conv2d):
+#         nn.init.kaiming_normal_(m.weight.data, nonlinearity='relu')
+#         nn.init.constant_(m.bias.data, 0)
+#     elif isinstance(m, nn.Linear):
+#         nn.init.xavier_normal_(m.weight.data, gain=nn.init.calculate_gain('relu'))
+#         nn.init.constant_(m.bias.data, 0)
+#     elif isinstance(m, nn.BatchNorm2d):
+#         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+#         torch.nn.init.constant_(m.bias.data, 0.0)
 
 
 def train(dataloader, model, loss_fn, optimizer):
