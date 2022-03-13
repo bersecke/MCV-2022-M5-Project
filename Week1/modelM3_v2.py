@@ -26,9 +26,9 @@ class ModelM3(nn.Module):
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
         self.classifier = nn.Sequential(
-            nn.Dropout(0.3),
+            nn.Dropout(0.2),
             nn.Linear(256, 8),
-            nn.Softmax()
+            # nn.Softmax()
         )
 
     def forward(self, x):
