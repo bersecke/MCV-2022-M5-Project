@@ -14,8 +14,8 @@ wandb.init(project="test-project", entity="fantastic5")
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"Using {device} device")
 
-TRAIN_DATA_PATH = "../MIT_split/train/"
-TEST_DATA_PATH = "../MIT_split/test/"
+TRAIN_DATA_PATH = "../MITsplit/train/"
+TEST_DATA_PATH = "../MITsplit/test/"
 
 EPOCHS = 200
 BATCH_SIZE = 16
