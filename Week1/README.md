@@ -1,0 +1,1 @@
+The model's architecture can be found in the model_architecture.py file, while the exectuable is in nachonet.py.
