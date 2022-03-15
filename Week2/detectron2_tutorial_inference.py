@@ -14,12 +14,14 @@ from detectron2.config import get_cfg
 from detectron2.utils.visualizer import Visualizer
 from detectron2.data import MetadataCatalog, DatasetCatalog
 
+from PIL import Image
+
 dataset_path = '/home/mcv/datasets/KITTI-MOTS/'
 
 ############################
 #   INFERENCE
 ############################
-im = cv2.imread(dataset_path + 'training/image_02/0000/000000.png')
+im = np.array(Image.open(dataset_path + 'training/image_02/0000/000000.png'))
 
 #Then, we create a detectron2 config and a detectron2 DefaultPredictor to run inference on this image.
 cfg = get_cfg()
@@ -38,4 +40,5 @@ print(outputs["instances"].pred_boxes)
 # We can use `Visualizer` to draw the predictions on the image.
 v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
 out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-cv2.imwrite('detectron2_inference.png', out.get_image()[:, :, ::-1])
+image = Image.fromarray(out.get_image()[:, :, ::-1])
+image.save('detectron2_inference.png',)
