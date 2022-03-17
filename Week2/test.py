@@ -20,40 +20,53 @@ import torchvision.transforms.functional as F
 
 
 
-mask_1 = cv2.imread('000000.png',cv2.IMREAD_GRAYSCALE)
-output = cv2.connectedComponentsWithStats(mask_1, 8, cv2.CV_32S)
-(numLabels, labels, boxes, centroids) = output
+# mask_1 = cv2.imread('000003_m.png',cv2.IMREAD_GRAYSCALE)
+# # output = cv2.connectedComponentsWithStats(mask_1, 8, cv2.CV_16U)
+# # (numLabels, labels, boxes, centroids) = output
 
-img_0 = cv2.imread('000000_t.png')
+# img_0 = cv2.imread('000003.png')
+# mask = np.array(Image.open('000003_m.png'))
+# obj_ids = np.unique(mask)
+# print(obj_ids)
 
-dBoxes = []
+# all_masks = (mask_1[np.newaxis] == obj_ids[1:, np.newaxis, np.newaxis])
+# print(all_masks.shape)
+# allBoxes = []
+# # for id in range(len(obj_ids)):
+# mask_1[mask == 10000] = 0
+# print(mask_1[mask == 10000])
+# plt.imshow(mask_1)
+# plt.show()
+# counts, hier = cv2.findContours(mask_1, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+# # output = cv2.connectedComponentsWithStats(all_masks[id,:,:], 8, cv2.CV_16U)
+# # (numLabels, labels, boxes, centroids) = output
+# for cont in counts:
+#     print(np.shape(cont))
+#     pxs = [p[0][0] for p in cont]
+#     pys = [p[0][1] for p in cont]
+#     box = [np.min(pxs), np.min(pys), np.max(pxs), np.max(pys)]
+#     print(f'({box[0]},  {box[1]}), ({box[0]+box[2]}, {box[1]+box[3]})')
+#     img_0 = cv2.rectangle(img_0, (box[0],  box[1]), (box[2], box[3]), (255,0,0), 2)
+
+# dBoxes = []
 # print(boxes)
-for box in boxes[1:]:
-    print(f'({box[0]},  {box[1]}), ({box[0]+box[2]}, {box[1]+box[3]})')
-    centerX = box[0] + (box[2] // 2)
-    centerY = box[1] + (box[3] // 2)
-    cv2.circle(img_0,(centerX, centerY), 5, (0,255,0))
-    img_0 = cv2.rectangle(img_0, (box[0],  box[1]), (box[0] + box[2], box[1] + box[3]), (255,0,0), 2)
+# for box in boxes[1:]:
+#     print(f'({box[0]},  {box[1]}), ({box[0]+box[2]}, {box[1]+box[3]})')
+#     centerX = box[0] + (box[2] // 2)
+#     centerY = box[1] + (box[3] // 2)
+#     cv2.circle(img_0,(centerX, centerY), 5, (0,255,0))
+#     img_0 = cv2.rectangle(img_0, (box[0],  box[1]), (box[0] + box[2], box[1] + box[3]), (255,0,0), 2)
 
-mask = np.array(Image.open("000000.png"))
-print(mask.shape)
-plt.imshow(mask)
-plt.show()
 # np.savetxt('mask.txt',mask, delimiter=' ', fmt = '%.2f')
-obj_ids = np.unique(mask)
-print(obj_ids)
-box = boxes[1]
-centerX = box[0] + (box[2] // 2)
-centerY = box[1] + (box[3] // 2)
-print('Pixel inside box: ', mask[centerY,centerX])
 
-obj_id = mask[centerY,centerX]
-class_id = obj_id // 1000
-obj_instance_id = obj_id % 1000
-print(class_id, obj_instance_id)
+# print(obj_ids)
+# box = boxes[1]
+# centerX = box[0] + (box[2] // 2)
+# centerY = box[1] + (box[3] // 2)
+# print('Pixel inside box: ', mask[centerY,centerX])
 	
-plt.imshow(img_0)
-plt.show()
+# plt.imshow(img_0)
+# plt.show()
 
 
 # internal conversion from compressed RLE format to Python RLEs object
@@ -102,3 +115,28 @@ plt.show()
 # rle = '\Xe<3b;4L4M3N0O001O010O001O10OeFA_7`0`HA_7?bHB\7?cHB]7=cHD\7=bHE\7<dHFY7;gHFW7<TGAY15a7i0ZHYO\7S1_HPO[7V1cHlNY7X1dHkNZ7W1bHmN\7U1aHnN[7U1aHPO[7T1^HSO`7o0ZHWOe7j0WHYOi7[2N1002O0O2O0O2I6D=H7L52M2O0O010O1001N4M3M2M4lNmF]OU9`0lF@W9<kFCX98jFHY94iFJ[92fFN]9NeF1^9JdF6_9FcF9`9CaF=b9^OaFa0b9[O`Fc0\:O001O1O1O000001WE_OY:a0cEB^:>^EFb::[EHf:e00O1O100O1N2O1N2N3M2O1N2N2O2M2M3Ka^?'
 
 # print(rle2bbox(rle, (375, 1242)))
+def getItemsFromMask(maskPath):
+    mask_1 = cv2.imread(maskPath,cv2.IMREAD_GRAYSCALE)
+    # output = cv2.connectedComponentsWithStats(mask_1, 8, cv2.CV_32S)
+    # (numLabels, labels, boxes, centroids) = output
+    mask = np.array(Image.open(maskPath))
+    obj_ids = np.unique(mask)
+    print(obj_ids)
+
+    objs = []
+    # print(boxes)
+    for id in obj_ids[1:]:
+        if id != 10000:
+            maskAux = np.zeros(np.shape(mask))
+            maskAux[mask == id] = id
+            counts, hier = cv2.findContours(mask_1, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+            for cont in counts:
+                pxs = [p[0][0] for p in cont]
+                pys = [p[0][1] for p in cont]
+                box = [np.min(pxs), np.min(pys), np.max(pxs), np.max(pys)]
+                class_id = id // 1000
+                objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'poly': list(zip(pxs,pys))})
+
+    return objs
+
+print(getItemsFromMask('000003_m.png'))

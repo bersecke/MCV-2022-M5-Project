@@ -31,18 +31,25 @@ from detectron2.structures import BoxMode
 
 def getItemsFromMask(maskPath):
     mask_1 = cv2.imread(maskPath,cv2.IMREAD_GRAYSCALE)
-    output = cv2.connectedComponentsWithStats(mask_1, 8, cv2.CV_32S)
-    (numLabels, labels, boxes, centroids) = output
+    # output = cv2.connectedComponentsWithStats(mask_1, 8, cv2.CV_32S)
+    # (numLabels, labels, boxes, centroids) = output
     mask = np.array(Image.open(maskPath))
+    obj_ids = np.unique(mask)
+    print(obj_ids)
 
     objs = []
     # print(boxes)
-    for box in boxes[1:]:
-        # print(f'({box[0]},  {box[1]}), ({box[0]+box[2]}, {box[1]+box[3]})')
-        obj_id = mask[box[1] + (box[3] // 2), box[0] + (box[2] // 2)]
-        class_id = obj_id // 1000
-        obj_instance_id = obj_id % 1000
-        objs.append([box[0], box[1], box[0] + box[2], box[1] + box[3], class_id, obj_instance_id])
+    for id in obj_ids[1:]:
+        if id != 10000:
+            maskAux = np.zeros(np.shape(mask))
+            maskAux[mask == id] = id
+            counts, hier = cv2.findContours(mask_1, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+            for cont in counts:
+                pxs = [p[0][0] for p in cont]
+                pys = [p[0][1] for p in cont]
+                box = [np.min(pxs), np.min(pys), np.max(pxs), np.max(pys)]
+                class_id = id // 1000
+                objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'poly': list(zip(pxs,pys))})
 
     return objs
 
@@ -72,11 +79,12 @@ def get_KITTIMOTS_dicts(img_dir):
             # py = anno["all_points_y"]
             # poly = [(x + 0.5, y + 0.5) for x, y in zip(px, py)]
             # poly = [p for x in poly for p in x]
-            if elems[4] != 10:
+            if elems['class_id'] != 10:
+                poly = [p for x in elems['poly'] for p in x]
                 obj = {
-                    "bbox": [elems[0], elems[1], elems[2], elems[3]],
+                    "bbox": elems['box'],
                     "bbox_mode": BoxMode.XYXY_ABS,
-                    "segmentation": [None],
+                    "segmentation": [poly],
                     "category_id": elems[4],
                 }
                 objs.append(obj)
