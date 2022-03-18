@@ -28,16 +28,8 @@ def plot_samples(dataset_name, n=1):
             plt.imshow(v.get_image())
             plt.show
 
-config_file_path = "COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"
-
-def my_dataset_function():
-  ...
-  return list[dict] in the following format
+from detectron2.data.datasets import register_coco_instances
+register_coco_instances("my_dataset", {}, "json_annotation.json", "path/to/image/dir")
 
 from detectron2.data import DatasetCatalog
 DatasetCatalog.register("my_dataset", my_dataset_function)
-# later, to access the data:
-data: List[Dict] = DatasetCatalog.get("my_dataset")
-
-from detectron2.data.datasets import register_coco_instances
-register_coco_instances("my_dataset", {}, "json_annotation.json", "path/to/image/dir")
