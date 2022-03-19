@@ -1,5 +1,5 @@
 from binascii import rledecode_hqx
-import tensorflow as tf
+# import tensorflow as tf
 import PIL.Image as Image
 import numpy as np
 import matplotlib.pyplot as plt

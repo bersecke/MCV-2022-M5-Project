@@ -34,12 +34,22 @@ for d in ['train', 'valid']:
     MetadataCatalog.get("KITTIMOTS_" + d).set(thing_classes=["pedestrian", "car"])
 KITTIMOTS_metadata = MetadataCatalog.get("KITTIMOTS_train")
 
-print(DatasetCatalog.list())
 
 
 # Visualization
+dataset_dicts = get_KITTIMOTS_dicts('train')
 
-
+for d in random.sample(dataset_dicts, 1):
+    split_path = d["file_name"].split('/')
+    img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
+    # img_filename_basename = os.path.basename(d["file_name"])
+    # img_filename = path_train_imgs + img_filename_basename
+    print(img_filename)
+    img = cv2.imread(img_filename)
+    visualizer = Visualizer(img[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
+    out = visualizer.draw_dataset_dict(d)
+    image = Image.fromarray(out.get_image()[:, :, ::-1])
+    image.save('detectron2_trained.png',)
 
 # ------------------------------------------------------------
 
