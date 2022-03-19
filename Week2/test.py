@@ -1,5 +1,5 @@
 from binascii import rledecode_hqx
-import tensorflow as tf
+# import tensorflow as tf
 import PIL.Image as Image
 import numpy as np
 import matplotlib.pyplot as plt
@@ -139,4 +139,4 @@ def getItemsFromMask(maskPath):
 
     return objs
 
-print(getItemsFromMask('000003_m.png'))
+print(getItemsFromMask('dataset/000003_m.png'))
