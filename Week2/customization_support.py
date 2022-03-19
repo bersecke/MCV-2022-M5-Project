@@ -1,7 +1,9 @@
+import sys
 import numpy as np
 import cv2, os
 from PIL import Image
 from detectron2.structures import BoxMode
+
 
 def getItemsFromMask(maskPath):
     """

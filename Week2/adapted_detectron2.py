@@ -9,6 +9,7 @@ setup_logger()
 # Import some common libraries
 import numpy as np
 import os, json, cv2, random
+import pickle
 
 # Import some common detectron2 utilities
 from detectron2 import model_zoo
@@ -27,23 +28,31 @@ from customization_support import get_KITTIMOTS_dicts
 
 path_train_imgs = '../KITTI-MOTS/training/image_02/' #'/home/mcv/datasets/KITTI-MOTS/training/image_02/'
 path_train_labels = '../KITTI-MOTS/instances/' #'/home/mcv/datasets/KITTI-MOTS/instances/'
-
+path_train_labels_txt = '../KITTI-MOTS/instances_txt/' #'/home/mcv/datasets/KITTI-MOTS/instances_txt/'
 
 for d in ['train', 'valid']:
     DatasetCatalog.register("KITTIMOTS_" + d, lambda d=d: get_KITTIMOTS_dicts(d))
     MetadataCatalog.get("KITTIMOTS_" + d).set(thing_classes=["pedestrian", "car"])
 KITTIMOTS_metadata = MetadataCatalog.get("KITTIMOTS_train")
 
+# Loading or saving KITTIMOTS dicts
+saving_enabled = False
+saved_KITTIMOTS_dicts = './KITTIMOTS_dicts.pkl'
 
+if os.path.exists(saved_KITTIMOTS_dicts):
+    with open(saved_KITTIMOTS_dicts, 'rb') as reader:
+        dataset_dicts = pickle.load(reader)
+else:
+    dataset_dicts = get_KITTIMOTS_dicts('train')
+    if saving_enabled == True:
+        with open(saved_KITTIMOTS_dicts, 'wb') as handle:
+            pickle.dump(dataset_dicts, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 # Visualization
-dataset_dicts = get_KITTIMOTS_dicts('train')
 
-for d in random.sample(dataset_dicts, 1):
+for d in random.sample(dataset_dicts, 3):
     split_path = d["file_name"].split('/')
     img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
-    # img_filename_basename = os.path.basename(d["file_name"])
-    # img_filename = path_train_imgs + img_filename_basename
     print(img_filename)
     img = cv2.imread(img_filename)
     visualizer = Visualizer(img[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
