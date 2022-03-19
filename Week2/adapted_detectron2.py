@@ -61,7 +61,7 @@ for d in random.sample(dataset_dicts, 1):
     visualizer = Visualizer(img[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
     out = visualizer.draw_dataset_dict(d)
     image = Image.fromarray(out.get_image()[:, :, ::-1])
-    image.save('detectron2_trained.png',)
+    image.save('detectron2_pretrained.png',)
 
 # ------------------------------------------------------------
 
@@ -95,8 +95,27 @@ trainer.train()
 # Inference and evaluation
 
 cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
-cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5   # set a custom testing threshold
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7   # set a custom testing threshold
 predictor = DefaultPredictor(cfg)
+
+from detectron2.utils.visualizer import ColorMode
+dataset_dicts = get_KITTIMOTS_dicts('valid')
+
+# Example of inference on random image sample
+
+for d in random.sample(dataset_dicts, 1):    
+    im = cv2.imread(d["file_name"])
+    outputs = predictor(im)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
+    v = Visualizer(im[:, :, ::-1],
+                   metadata=KITTIMOTS_metadata, 
+                   scale=1.2, 
+                   instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
+    )
+    out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
+    image = Image.fromarray(out.get_image()[:, :, ::-1])
+    image.save('detectron2_trained.png',)
+
+# Evaluation based on COCO metrics
 
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader

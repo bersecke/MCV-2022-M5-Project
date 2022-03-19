@@ -69,7 +69,7 @@ def get_KITTIMOTS_dicts(data_type):
                         "bbox": elems['box'],
                         "bbox_mode": BoxMode.XYXY_ABS,
                         # "segmentation": [poly],
-                        "category_id": elems['class_id'], #?????
+                        "category_id": elems['class_id'] - 1, #?????
                     }
                     objs.append(obj)
             record["annotations"] = objs
