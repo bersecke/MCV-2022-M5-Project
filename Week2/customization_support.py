@@ -9,7 +9,7 @@ def getItemsFromMask(maskPath):
     """
     Reads the mask files in the KITTI-MOTS set and returns a list of objects in the format:
     'box': list of four corners of the box
-    'class_id': 1 for person, 3 for car
+    'class_id': 1 for car, 2 for pedestrian
     'poly': list of tuples containing point coordinates of shape
     """
     mask_1 = cv2.imread(maskPath,cv2.IMREAD_GRAYSCALE)
@@ -29,7 +29,7 @@ def getItemsFromMask(maskPath):
                 class_id = id // 1000
                 objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'poly': list(zip(pxs,pys))})
 
-    return objs    
+    return objs
 
 
 def get_KITTIMOTS_dicts(data_type):
@@ -63,13 +63,13 @@ def get_KITTIMOTS_dicts(data_type):
             objs = []
             boxes = getItemsFromMask(filename)
             for elems in boxes:
-                if elems['class_id'] != 10: #WHY?
-                    poly = [p for x in elems['poly'] for p in x]
+                if elems['class_id'] != 10:
+                    # poly = [p for x in elems['poly'] for p in x]
                     obj = {
                         "bbox": elems['box'],
                         "bbox_mode": BoxMode.XYXY_ABS,
-                        "segmentation": [poly],
-                        "category_id": elems['class_id'],
+                        # "segmentation": [poly],
+                        "category_id": elems['class_id'], #?????
                     }
                     objs.append(obj)
             record["annotations"] = objs
