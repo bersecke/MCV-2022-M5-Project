@@ -26,9 +26,9 @@ from customization_support import get_KITTIMOTS_dicts
 
 # Preparing the custom dataset
 
-path_train_imgs = '../KITTI-MOTS/training/image_02/' #'/home/mcv/datasets/KITTI-MOTS/training/image_02/'
-path_train_labels = '../KITTI-MOTS/instances/' #'/home/mcv/datasets/KITTI-MOTS/instances/'
-path_train_labels_txt = '../KITTI-MOTS/instances_txt/' #'/home/mcv/datasets/KITTI-MOTS/instances_txt/'
+path_train_imgs = '/home/mcv/datasets/KITTI-MOTS/training/image_02/'
+path_train_labels = '/home/mcv/datasets/KITTI-MOTS/instances/'
+path_train_labels_txt = '/home/mcv/datasets/KITTI-MOTS/instances_txt/'
 
 for d in ['train', 'valid']:
     DatasetCatalog.register("KITTIMOTS_" + d, lambda d=d: get_KITTIMOTS_dicts(d))
