@@ -36,7 +36,7 @@ for d in ['train', 'valid']:
 KITTIMOTS_metadata = MetadataCatalog.get("KITTIMOTS_train")
 
 # Loading or saving KITTIMOTS dicts
-saving_enabled = False
+saving_enabled = True
 saved_KITTIMOTS_dicts = './KITTIMOTS_dicts.pkl'
 
 if os.path.exists(saved_KITTIMOTS_dicts):
