@@ -22,7 +22,7 @@ def getItemsFromMask(maskPath):
             maskAux[mask == obj] = obj
             maskAux = maskAux.astype(np.uint8)
 
-            counts, hier = cv2.findContours(maskAux, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+            counts, hier = cv2.findContours(maskAux, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_NONE)
 
             for cont in counts:
                 pxs = [p[0][0] for p in cont]
@@ -35,6 +35,7 @@ def getItemsFromMask(maskPath):
                 objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'object_id': obj_instance_id, 'poly': list(zip(pxs,pys))})
 
     return objs
+
 
 def get_KITTIMOTS_dicts(data_type):
     """
