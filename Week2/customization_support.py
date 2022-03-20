@@ -12,25 +12,29 @@ def getItemsFromMask(maskPath):
     'class_id': 1 for car, 2 for pedestrian
     'poly': list of tuples containing point coordinates of shape
     """
-    mask_1 = cv2.imread(maskPath,cv2.IMREAD_GRAYSCALE)
     mask = np.array(Image.open(maskPath))
     obj_ids = np.unique(mask)
 
     objs = []
-    for id in obj_ids[1:]:
-        if id != 10000:
+    for obj in obj_ids[1:]:
+        if obj != 10000:
             maskAux = np.zeros(np.shape(mask))
-            maskAux[mask == id] = id
-            counts, hier = cv2.findContours(mask_1, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+            maskAux[mask == obj] = obj
+            maskAux = maskAux.astype(np.uint8)
+
+            counts, hier = cv2.findContours(maskAux, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_NONE)
+
             for cont in counts:
                 pxs = [p[0][0] for p in cont]
                 pys = [p[0][1] for p in cont]
                 box = [np.min(pxs), np.min(pys), np.max(pxs), np.max(pys)]
-                class_id = id // 1000
-                objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'poly': list(zip(pxs,pys))})
+
+                class_id = obj // 1000
+                obj_instance_id = obj % 1000
+
+                objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'object_id': obj_instance_id, 'poly': list(zip(pxs,pys))})
 
     return objs
-
 
 def get_KITTIMOTS_dicts(data_type):
     """
