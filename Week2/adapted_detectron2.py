@@ -33,7 +33,7 @@ path_train_labels_txt = '/home/mcv/datasets/KITTI-MOTS/instances_txt/'
 
 for d in ['train', 'valid']:
     DatasetCatalog.register("KITTIMOTS_" + d, lambda d=d: get_KITTIMOTS_dicts(d))
-    MetadataCatalog.get("KITTIMOTS_" + d).set(thing_classes=["car", "pedestrian"]) # OR OTHER WAY AROUND?
+    MetadataCatalog.get("KITTIMOTS_" + d).set(thing_classes=["car", "pedestrian"])
 KITTIMOTS_metadata = MetadataCatalog.get("KITTIMOTS_train")
 
 
@@ -58,7 +58,8 @@ for d in random.sample(dataset_dicts, 1):
     split_path = d["file_name"].split('/')
     img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
     img = cv2.imread(img_filename)
-    visualizer = Visualizer(img[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
+    im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    visualizer = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
     out = visualizer.draw_dataset_dict(d)
     image = Image.fromarray(out.get_image()[:, :, ::-1])
     image.save('detectron2_pretrained.png',)
@@ -79,8 +80,8 @@ cfg.DATASETS.TEST = ()
 cfg.DATALOADER.NUM_WORKERS = 2
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(selected_model)  # Let training initialize from model zoo
 cfg.SOLVER.IMS_PER_BATCH = 2
-cfg.SOLVER.BASE_LR = 0.001
-cfg.SOLVER.MAX_ITER = 1000    
+cfg.SOLVER.BASE_LR = 0.0001
+cfg.SOLVER.MAX_ITER = 5000    
 cfg.SOLVER.STEPS = [] # do not decay learning rate
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 # (default: 512)
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2 
@@ -98,18 +99,20 @@ cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to t
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7   # set a custom testing threshold
 predictor = DefaultPredictor(cfg)
 
-from detectron2.utils.visualizer import ColorMode
-dataset_dicts = get_KITTIMOTS_dicts('valid')
+dataset_dicts_val = get_KITTIMOTS_dicts('valid')
 
 # Example of inference on random image sample
 
-for d in random.sample(dataset_dicts, 1):    
-    im = cv2.imread(d["file_name"])
-    outputs = predictor(im)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
-    v = Visualizer(im[:, :, ::-1],
+for d in random.sample(dataset_dicts_val, 1):
+    split_path = d["file_name"].split('/')
+    img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
+    print(img_filename)
+    img = cv2.imread(img_filename)
+    im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    outputs = predictor(im_rgb)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
+    v = Visualizer(im_rgb[:, :, ::-1],
                    metadata=KITTIMOTS_metadata, 
-                   scale=1.2, 
-                   instance_mode=ColorMode.IMAGE_BW   # remove the colors of unsegmented pixels. This option is only available for segmentation models
+                   scale=1.2
     )
     out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     image = Image.fromarray(out.get_image()[:, :, ::-1])

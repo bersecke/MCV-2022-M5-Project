@@ -68,13 +68,13 @@ def get_KITTIMOTS_dicts(data_type):
             objs = []
             boxes = getItemsFromMask(filename)
             for elems in boxes:
-                if elems['class_id'] != 10:
+                if elems['class_id'] != 10: # USELESS CONDITION
                     # poly = [p for x in elems['poly'] for p in x]
                     obj = {
                         "bbox": elems['box'],
                         "bbox_mode": BoxMode.XYXY_ABS,
                         # "segmentation": [poly],
-                        "category_id": elems['class_id'] - 1, #?????
+                        "category_id": elems['class_id'] - 1, #DOUBLECHECK
                     }
                     objs.append(obj)
             record["annotations"] = objs
