@@ -21,7 +21,7 @@ from detectron2.data import MetadataCatalog, DatasetCatalog
 
 from PIL import Image
 
-from customization_support import get_KITTIMOTS_dicts
+from customization_support import cover_areas_to_ignore, get_KITTIMOTS_dicts
 
 # ------------------------------------------------------------
 
@@ -81,7 +81,7 @@ cfg.DATALOADER.NUM_WORKERS = 2
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url(selected_model)  # Let training initialize from model zoo
 cfg.SOLVER.IMS_PER_BATCH = 2
 cfg.SOLVER.BASE_LR = 0.0001
-cfg.SOLVER.MAX_ITER = 5000    
+cfg.SOLVER.MAX_ITER = 10000  
 cfg.SOLVER.STEPS = [] # do not decay learning rate
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 # (default: 512)
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 2 
@@ -109,6 +109,9 @@ for d in random.sample(dataset_dicts_val, 1):
     print(img_filename)
     img = cv2.imread(img_filename)
     im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    im_rgb = cover_areas_to_ignore(im_rgb, d["file_name"])
+
     outputs = predictor(im_rgb)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
     v = Visualizer(im_rgb[:, :, ::-1],
                    metadata=KITTIMOTS_metadata, 

@@ -4,7 +4,6 @@ import cv2, os
 from PIL import Image
 from detectron2.structures import BoxMode
 
-
 def getItemsFromMask(maskPath):
     """
     Reads the mask files in the KITTI-MOTS set and returns a list of objects in the format:
@@ -35,6 +34,16 @@ def getItemsFromMask(maskPath):
                 objs.append({'box':[box[0], box[1], box[2], box[3]], 'class_id':class_id, 'object_id': obj_instance_id, 'poly': list(zip(pxs,pys))})
 
     return objs
+
+
+def cover_areas_to_ignore(image, maskPath):
+    """
+    Sets the "Don't care" areas to 0 values on the images to perform predictions on.
+    """
+    mask = np.array(Image.open(maskPath))
+    image[mask == 10000] = 0
+
+    return image
 
 
 def get_KITTIMOTS_dicts(data_type):
