@@ -35,22 +35,10 @@ coco_classes = [f'obj_{i}' for i in range(80)]
 coco_classes[0] = 'person'
 coco_classes[2] = 'car'
 
-# aux = get_KITTIMOTS_dicts('valid', True, True)
-
-
 for d in ['train','valid']:
-    # DatasetCatalog.register(f"KITTIMOTS_{d}_pretrained", lambda d=d: get_KITTIMOTS_dicts2(d))
     DatasetCatalog.register(f"KITTIMOTS_{d}_pretrained", lambda d=d: get_KITTIMOTS_dicts(d, True, True))
-    # MetadataCatalog.get(f"KITTIMOTS_{d}_pretrained").set(thing_classes=["car","person"])
     MetadataCatalog.get(f"KITTIMOTS_{d}_pretrained").set(thing_classes=coco_classes)
 KITTIMOTS_metadata = MetadataCatalog.get("KITTIMOTS_valid_pretrained")
-
-
-# Loading or saving KITTIMOTS dicts
-saving_enabled = True
-saved_KITTIMOTS_dicts = './KITTIMOTS_valid_pretrained.pkl'
-
-# ------------------------------------------------------------
 
 # Evaluation
 
@@ -66,17 +54,10 @@ cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
 cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
 predictor = DefaultPredictor(cfg)
 
-# Infer to visually check quality
-im = np.array(Image.open('000003.png'))
-outputs = predictor(im)
-print(outputs)
-v = Visualizer(im[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
-out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-image = Image.fromarray(out.get_image()[:, :, ::-1])
-image.save('detectron2_image_evaluation_pretrained.png',)
 
 from detectron2.evaluation import COCOEvaluator, inference_on_dataset
 from detectron2.data import build_detection_test_loader
+
 evaluator = COCOEvaluator("KITTIMOTS_valid_pretrained", output_dir="./output")
 val_loader = build_detection_test_loader(cfg, "KITTIMOTS_valid_pretrained")
 print(inference_on_dataset(predictor.model, val_loader, evaluator))

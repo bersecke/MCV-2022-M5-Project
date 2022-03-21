@@ -79,11 +79,3 @@ def get_KITTIMOTS_dicts(data_type, pretrained=False):
     return dataset_dicts
 
 dict = get_KITTIMOTS_dicts('train')
-# dict = get_KITTIMOTS_dicts('valid')
-
-# print(dict)
-
-# import json
-    
-# with open("poly_test_sample.json", "w") as outfile:
-#     json.dump(dict, outfile)

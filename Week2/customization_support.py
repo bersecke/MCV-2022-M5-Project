@@ -19,17 +19,10 @@ def _make_array(t: Union[torch.Tensor, np.ndarray]) -> np.ndarray:
     return np.asarray(t).astype("float64")
 
 def checkPolys(polys, data,class_id):
-    # print('------ on checking ----------')
-    # print(polys)
-    # print('---------------------------------------')
     polygons_per_instance = [_make_array(p) for p in polys]
     for polygon in polygons_per_instance:
-        # print('------ one poly ----------')
-        # print(polygon)
-        # print('---------------------------------------')
         if len(polygon) % 2 != 0 or len(polygon) < 6:
             print(data, class_id)
-            print('-----------------------------',polygon)
 
 def getSingleBox(countours):
     polys = []
@@ -84,9 +77,7 @@ def getItemsFromMask(maskPath):
             box,polys = getSingleBox(counts)
             class_id = obj // 1000
             obj_instance_id = obj % 1000
-            objs.append({'box':box, 'class_id':int(class_id), 'object_id': int(obj_instance_id), 'poly': polys })#'poly': list(zip(pxs,pys))})
-
-
+            objs.append({'box':box, 'class_id':int(class_id), 'object_id': int(obj_instance_id), 'poly': polys })
 
     return objs
 
@@ -134,17 +125,14 @@ def get_KITTIMOTS_dicts(data_type, ignorecase=True, pretrained=False):
             objs = []
             boxes = getItemsFromMask(filename)
             for elems in boxes:
-                # if elems['class_id'] != 10: # USELESS CONDITION
-                # poly = [p for x in elems['poly'] for p in x]
-                # if pretrained:
-                #     if elems['class_id'] == 1: #car
-                #         elems['class_id'] = 3
-                #     elif elems['class_id'] == 2: #person
-                #         elems['class_id'] = 1
-                #     else: #ignore or  background
-                #         elems['class_id'] = 80
-                # if ignorecase or elems['class_id'] != 3:
-                    # checkPolys(elems['poly'],record,elems['class_id'])
+                if pretrained:
+                    if elems['class_id'] == 1: #car
+                        elems['class_id'] = 3
+                    elif elems['class_id'] == 2: #person
+                        elems['class_id'] = 1
+                    else: #ignore or  background
+                        elems['class_id'] = 80
+                # checkPolys(elems['poly'],record,elems['class_id'])
                 obj = {
                     "bbox": elems['box'],
                     "bbox_mode": BoxMode.XYXY_ABS,
@@ -196,7 +184,7 @@ def get_KITTIMOTS_dicts2(data_type):
                         "bbox": elems['box'],
                         "bbox_mode": BoxMode.XYXY_ABS,
                         "segmentation": elems['poly'],
-                        "category_id": elems['class_id'] - 1, #DOUBLECHECK
+                        "category_id": elems['class_id'] - 1,
                     }
                     objs.append(obj)
             record["annotations"] = objs

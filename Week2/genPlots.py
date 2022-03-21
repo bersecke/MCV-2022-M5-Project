@@ -2,10 +2,8 @@ import json
 import matplotlib.pyplot as plt
 
 
-f = open('./output/metrics_2cls.json')
- 
-# returns JSON object as
-# a dictionary
+f = open('./output/metrics.json')
+
 data = json.load(f)
 
 losses = []
@@ -22,4 +20,4 @@ plt.plot(iters, losses, label='Total loss')
 plt.plot(iters, loss_cls, label='Classification loss')
 plt.plot(iters, loss_box_reg, label='Location loss')
 plt.legend()
-plt.savefig('2_classes_chart.png')
+plt.savefig('losses_chart.png')

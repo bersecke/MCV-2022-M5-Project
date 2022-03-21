@@ -67,18 +67,6 @@ out = visualizer.draw_dataset_dict(d)
 image = Image.fromarray(out.get_image()[:, :, ::-1])
 image.save('detectron2_GT.png',)
 
-# Random version
-# for d in random.sample(dataset_dicts, 1):
-#     split_path = d["file_name"].split('/')
-#     img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
-#     print(img_filename)
-#     img = cv2.imread(img_filename)
-#     im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#     visualizer = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
-#     out = visualizer.draw_dataset_dict(d)
-#     image = Image.fromarray(out.get_image()[:, :, ::-1])
-#     image.save('detectron2_GT.png',)
-
 # ------------------------------------------------------------
 
 # Training
@@ -102,8 +90,6 @@ cfg.SOLVER.STEPS = [] # do not decay learning rate
 cfg.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512 # (default: 512)
 cfg.MODEL.ROI_HEADS.NUM_CLASSES = 3
 
-# cfg.INPUT.MASK_FORMAT='bitmask' # For the polys in rle
-
 os.makedirs(cfg.OUTPUT_DIR, exist_ok=True)
 trainer = DefaultTrainer(cfg) 
 trainer.resume_or_load(resume=False)
@@ -117,9 +103,7 @@ cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to t
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5   # set a custom testing threshold
 predictor = DefaultPredictor(cfg)
 
-# dataset_dicts_val = get_KITTIMOTS_dicts('valid')
-
-# Example of inference on random image sample
+# Example of inference on significative image sample
 
 img_filename = '/home/mcv/datasets/KITTI-MOTS/training/image_02/0019/000074.png'
 for element in dataset_dicts:
@@ -133,25 +117,6 @@ v = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
 out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 image = Image.fromarray(out.get_image()[:, :, ::-1])
 image.save('detectron2_trained.png',)
-
-# Random version
-# for d in random.sample(dataset_dicts_val, 1):
-#     split_path = d["file_name"].split('/')
-#     img_filename = path_train_imgs + split_path[-2] + '/' + split_path[-1]
-#     print(img_filename)
-#     img = cv2.imread(img_filename)
-#     im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-#     # im_rgb = cover_areas_to_ignore(im_rgb, d["file_name"])
-
-#     outputs = predictor(im_rgb)  # format is documented at https://detectron2.readthedocs.io/tutorials/models.html#model-output-format
-#     v = Visualizer(im_rgb[:, :, ::-1],
-#                    metadata=KITTIMOTS_metadata, 
-#                    scale=1.2
-#     )
-#     out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
-#     image = Image.fromarray(out.get_image()[:, :, ::-1])
-#     image.save('detectron2_trained.png',)
 
 # Evaluation based on COCO metrics
 

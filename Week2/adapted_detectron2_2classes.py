@@ -55,16 +55,16 @@ else:
 
 # Example visualization (representative case)
 
-# img_filename = '/home/mcv/datasets/KITTI-MOTS/training/image_02/0019/000074.png'
-# for element in dataset_dicts:
-#     if element['file_name'] == img_filename:
-#         d = element
-# img = cv2.imread(img_filename)
-# im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-# visualizer = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
-# out = visualizer.draw_dataset_dict(d)
-# image = Image.fromarray(out.get_image()[:, :, ::-1])
-# image.save('detectron2_GT.png',)
+img_filename = '/home/mcv/datasets/KITTI-MOTS/training/image_02/0019/000074.png'
+for element in dataset_dicts:
+    if element['file_name'] == img_filename:
+        d = element
+img = cv2.imread(img_filename)
+im_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+visualizer = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
+out = visualizer.draw_dataset_dict(d)
+image = Image.fromarray(out.get_image()[:, :, ::-1])
+image.save('detectron2_GT.png',)
 
 # ------------------------------------------------------------
 
@@ -104,10 +104,7 @@ cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to t
 cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5   # set a custom testing threshold
 predictor = DefaultPredictor(cfg)
 
-# dataset_dicts_val = get_KITTIMOTS_dicts2('valid')
-
-# Example of inference on random image sample
-
+# Example of inference on representative image
 img_filename = '/home/mcv/datasets/KITTI-MOTS/training/image_02/0019/000074.png'
 for element in dataset_dicts:
     if element['file_name'] == img_filename:

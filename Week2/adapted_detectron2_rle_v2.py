@@ -93,12 +93,12 @@ trainer.train()
 # Inference and evaluation
 
 cfg.MODEL.WEIGHTS = os.path.join(cfg.OUTPUT_DIR, "model_final.pth")  # path to the model we just trained
-cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.7   # set a custom testing threshold
+cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5   # set a custom testing threshold
 predictor = DefaultPredictor(cfg)
 
 dataset_dicts_val = get_KITTIMOTS_dicts('valid')
 
-# Example of inference on random image sample
+# Example of inference on relevant image sample
 
 img_filename = '/home/mcv/datasets/KITTI-MOTS/training/image_02/0019/000074.png'
 for element in dataset_dicts:
@@ -111,7 +111,7 @@ outputs = predictor(im_rgb)  # format is documented at https://detectron2.readth
 v = Visualizer(im_rgb[:, :, ::-1], metadata=KITTIMOTS_metadata, scale=1.2)
 out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
 image = Image.fromarray(out.get_image()[:, :, ::-1])
-# image.save('detectron2_trained.png',)
+image.save('detectron2_trained_with_rle.png',)
 
 # Evaluation based on COCO metrics
 

@@ -51,7 +51,6 @@ def get_KITTIMOTS_dicts(data_type, pretrained=False):
         sequences = ['0000', '0001', '0002', '0003', '0004', '0005', '0006', '0007', '0013', '0014', '0015', '0016']
     elif data_type == 'valid':
         sequences = ['0008', '0009', '0010', '0011', '0012', '0017', '0018', '0019', '0020']
-        # sequences = ['0000']
 
 
     dataset_dicts = []
@@ -95,12 +94,3 @@ def get_KITTIMOTS_dicts(data_type, pretrained=False):
                 dataset_dicts.append(record)
     # print(dataset_dicts)
     return dataset_dicts
-
-# dict = get_KITTIMOTS_dicts('valid')
-
-# print(dict)
-
-# import json
-    
-# with open("poly_test_sample.json", "w") as outfile:
-#     json.dump(dict, outfile)
