@@ -4,13 +4,11 @@ import pycocotools.mask as rletools
 import glob
 import os
 
-
 class SegmentedObject:
   def __init__(self, mask, class_id, track_id):
     self.mask = mask
     self.class_id = class_id
     self.track_id = track_id
-
 
 def load_sequences(path, seqmap):
   objects_per_frame_per_sequence = {}
