@@ -23,7 +23,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description= 'Arguments to run the inference script')
     parser.add_argument('-p', '--path', default='/home/mcv/datasets/out_of_context/', type=str, help='Absolute path to image folder')
     parser.add_argument('-e', '--extension', default='.jpg', type=str, help='Absolute path to image folder')
-    parser.add_argument('-o', '--out_path', default='./results', type=str, help='Relative path to output folder')
+    parser.add_argument('-o', '--out_path', default='./results_out_of_context', type=str, help='Relative path to output folder')
     parser.add_argument('-m', '--model', default='COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml', type=str, help='Detectron2 Model')
 
     return parser.parse_args()
@@ -65,6 +65,6 @@ for ind, filename in enumerate(filenames):
     v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     image = Image.fromarray(out.get_image()[:, :, ::-1])
-    image.save(f'{args.out_path}predicted_{Path(filename).stem}')
+    image.save(f'{args.out_path}predicted_{Path(filename).stem}.png')
 
 ####################################
