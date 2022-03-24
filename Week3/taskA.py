@@ -65,6 +65,6 @@ for ind, filename in enumerate(filenames):
     v = Visualizer(im[:, :, ::-1], MetadataCatalog.get(cfg.DATASETS.TRAIN[0]), scale=1.2)
     out = v.draw_instance_predictions(outputs["instances"].to("cpu"))
     image = Image.fromarray(out.get_image()[:, :, ::-1])
-    image.save(f'{args.out_path}predicted_{Path(filename).stem}.png')
+    image.save(f'{args.out_path}/predicted_{Path(filename).stem}.png')
 
 ####################################
