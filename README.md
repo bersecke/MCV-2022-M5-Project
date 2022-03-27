@@ -12,4 +12,9 @@
  
 #### Week 2 reports:  
  [Presentation](https://docs.google.com/presentation/d/1DyZUGjAhFSSLnm3dqBWGfgkCuweBihSstr5ltfYIE08/edit?usp=sharing)  
+ 
+#### Week 3 reports:  
+ [Presentation](https://docs.google.com/presentation/d/1V1lzChQ2tLPWhSbtpTWSgt3XPHLhPH5prjS_FleGtaU/edit?usp=sharing)  
+   
+#### Object Classification, Detection and Segmentation Report  
  [Overleaf](https://www.overleaf.com/read/ycpsxdxggnyp)
