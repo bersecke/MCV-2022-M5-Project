@@ -22,9 +22,9 @@ from pathlib import Path
 def parse_args():
     parser = argparse.ArgumentParser(description= 'Arguments to run the inference script')
     parser.add_argument('-p', '--path', default='/home/mcv/datasets/out_of_context/', type=str, help='Absolute path to image folder')
-    parser.add_argument('-e', '--extension', default='.jpg', type=str, help='Absolute path to image folder')
+    parser.add_argument('-e', '--extension', default='.jpg', type=str, help='Extension')
     parser.add_argument('-o', '--out_path', default='./results_out_of_context', type=str, help='Relative path to output folder')
-    parser.add_argument('-m', '--model', default='COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml', type=str, help='Detectron2 Model')
+    parser.add_argument('-m', '--model', default='COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml', type=str, help='Detectron2 Model')
 
     return parser.parse_args()
 
