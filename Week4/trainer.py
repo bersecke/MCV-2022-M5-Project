@@ -1,5 +1,8 @@
 import torch
 import numpy as np
+from tqdm import tqdm
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
@@ -122,3 +125,46 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
                 metric(outputs, target, loss_outputs)
 
     return val_loss, metrics
+
+
+def train(dataloader, model, loss_fn, optimizer):
+    size = len(dataloader.dataset)
+    model.train()
+    epoch_loss, correct = 0, 0
+    for (X, y) in tqdm(dataloader, desc='Training', leave=False):
+        X, y = X.to(device), y.to(device)
+
+        optimizer.zero_grad()
+        
+        # Compute prediction error
+        pred = model(X)
+        loss = loss_fn(pred, y)
+
+        # Backpropagation
+        loss.backward()
+        optimizer.step()
+        epoch_loss += loss.item()
+        correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+
+    loss = epoch_loss / len(dataloader)
+    acc = correct / size
+    print(f"Training loss: {loss:>7f}, Training accuracy: {acc:>7f}")
+    return loss, acc
+
+
+def test(dataloader, model, loss_fn):
+    size = len(dataloader.dataset)
+    num_batches = len(dataloader)
+    model.eval()
+    test_loss, correct = 0, 0
+    with torch.no_grad():
+        for X, y in dataloader:
+            X, y = X.to(device), y.to(device)
+            pred = model(X)
+            test_loss += loss_fn(pred, y).item()
+            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+    test_loss /= num_batches
+    correct /= size
+    print(f"Test Error: Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f}")
+
+    return test_loss, correct
