@@ -64,8 +64,8 @@ class SiameseDataset(Dataset):
             img2 = self.test_data[self.test_pairs[index][1]]
             target = self.test_pairs[index][2]
 
-        img1 = Image.fromarray(img1.numpy(), mode='L')
-        img2 = Image.fromarray(img2.numpy(), mode='L')
+        img1 = Image.fromarray(img1.numpy(), mode='RGB')
+        img2 = Image.fromarray(img2.numpy(), mode='RGB')
         if self.transform is not None:
             img1 = self.transform(img1)
             img2 = self.transform(img2)

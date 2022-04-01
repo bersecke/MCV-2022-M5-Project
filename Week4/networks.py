@@ -52,7 +52,6 @@ class ClassificationNet(ModelM3):
             nn.LogSoftmax()
         )
 
-
     def forward(self, x):
         output = super(ClassificationNet, self).forward(x)
         output = self.classifier(output)
@@ -110,13 +109,12 @@ class EmbeddingNet(nn.Module):
     def __init__(self):
         super(EmbeddingNet, self).__init__()
         self.convnet = nn.Sequential(
-                                    nn.BatchNorm2d(3),
-                                    nn.Conv2d(3, 64, 5), nn.PReLU(),
+                                    nn.Conv2d(3, 32, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2),
                                     nn.Conv2d(32, 64, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2))
 
-        self.fc = nn.Sequential(nn.Linear(53824, 256),
+        self.fc = nn.Sequential(nn.Linear(238144, 256),
                                 nn.PReLU(),
                                 nn.Linear(256, 256),
                                 nn.PReLU(),
