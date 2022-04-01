@@ -45,21 +45,26 @@ class MITSplitDataset_v2(Dataset):
         # Transforms
         self.transform=transform
         # Read the csv file
+
+        to_tensor = transforms.Compose([transforms.ToTensor()])
+
         self.train=train
         if self.train:
             self.train_data_info = pd.read_csv(train_path,header=None)
             self.train_data =[] 
             
             print("printing train data length MIT Split")
-            print(len(self.train_data_info.index))
+            # print(len(self.train_data_info.index))
 
             for (i,j) in enumerate(np.asarray(self.train_data_info.iloc[:, 1])):
-                try : 
-                    self.train_data.append(self.to_tensor(Image.open("../MIT_split/"+j))) 
+                try :
+                    img = Image.open(j)
+                    img = to_tensor(img)
+                    self.train_data.append(img)
                 except : 
-                    print(j)
+                    print('ERROR LOADING:' + j)
             
-
+            print(self.train_data)
             self.train_data = torch.stack(self.train_data)
             self.train_labels = np.asarray(self.train_data_info.iloc[:, 2])
             self.train_labels = torch.from_numpy(self.train_labels)
@@ -71,9 +76,11 @@ class MITSplitDataset_v2(Dataset):
             self.test_data =[] 
             for (i,j) in enumerate(np.asarray(self.test_data_info.iloc[:, 1])):
                 try : 
-                    self.test_data.append(self.to_tensor(Image.open("../MIT_split/"+j))) 
+                    img = Image.open(j)
+                    img = to_tensor(img)
+                    self.train_data.append(img)
                 except : 
-                    print(j)  
+                    print('ERROR LOADING:' + j) 
 
             self.test_data = torch.stack(self.test_data)
             self.test_labels = np.asarray(self.test_data_info.iloc[:, 2])
