@@ -1,5 +1,6 @@
 import torch
 from torch import embedding, nn
+import torch.nn.functional as F
 
 # Define model
 class ModelM3(nn.Module): 
@@ -60,6 +61,22 @@ class ClassificationNet(ModelM3):
     def get_embedding(self, x):
         return self.forward(x)
 
+class ClassificationNet_v2(nn.Module):
+    def __init__(self, embedding_net, n_classes):
+        super(ClassificationNet_v2, self).__init__()
+        self.embedding_net = embedding_net
+        self.n_classes = n_classes
+        self.nonlinear = nn.PReLU()
+        self.fc1 = nn.Linear(2, n_classes)
+
+    def forward(self, x):
+        output = self.embedding_net(x)
+        output = self.nonlinear(output)
+        scores = F.log_softmax(self.fc1(output), dim=-1)
+        return scores
+
+    def get_embedding(self, x):
+        return self.nonlinear(self.embedding_net(x))
 
 class SiameseNet(nn.Module):
     def __init__(self, embedding_net):
@@ -92,12 +109,27 @@ class TripletNet(nn.Module):
 class EmbeddingNet(nn.Module):
     def __init__(self):
         super(EmbeddingNet, self).__init__()
-        self.convnet = nn.Sequential(nn.Conv2d(1, 32, 5), nn.PReLU(),
-                                     nn.MaxPool2d(2, stride=2),
-                                     nn.Conv2d(32, 64, 5), nn.PReLU(),
-                                     nn.MaxPool2d(2, stride=2))
+        self.convnet = nn.Sequential(
+                                nn.BatchNorm2d(3),
+                                nn.Conv2d(3, 64, 7, padding="same"),
+                                nn.ReLU(inplace=True),
 
-        self.fc = nn.Sequential(nn.Linear(64 * 4 * 4, 256),
+                                nn.MaxPool2d(2),
+                                nn.GroupNorm(1, 64), #Equivalent to layer normalization
+                                # nn.Conv2d(64, 128, 3),
+                                nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding="same"),
+                                nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1, padding="same"),
+                                nn.ReLU(inplace=True),
+
+                                nn.MaxPool2d(2),
+                                nn.GroupNorm(1, 128), #Equivalent to layer normalization
+                                # nn.Conv2d(128, 256, 3),
+                                nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128, padding="same"),
+                                nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1, padding="same"),
+                                nn.ReLU(inplace=True),
+                                    )
+
+        self.fc = nn.Sequential(nn.Linear(262144, 256),
                                 nn.PReLU(),
                                 nn.Linear(256, 256),
                                 nn.PReLU(),
