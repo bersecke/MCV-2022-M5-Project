@@ -11,12 +11,12 @@ class SiameseDataset(Dataset):
     Test: Creates fixed pairs for testing
     """
 
-    def __init__(self, dataset, train):
+    def __init__(self, dataset):
         self.dataset = dataset
 
         self.transform = self.dataset.transform
 
-        if train:
+        if self.train:
             self.train_labels = self.dataset.train_labels
             self.train_data = self.dataset.train_data
             self.labels_set = set(self.train_labels)
