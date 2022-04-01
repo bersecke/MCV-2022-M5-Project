@@ -41,22 +41,21 @@ class MITSplitDataSet(Dataset):
         return self.data_len
 
 class MITSplitDataset_v2(Dataset):
-    def __init__(self,train_path,test_path,train):
+    def __init__(self,train_path,test_path, transform, train):
         # Transforms
-        self.to_tensor = transforms.ToTensor()
-        self.transform=None
+        self.transform=transform
         # Read the csv file
         self.train=train
         if self.train:
             self.train_data_info = pd.read_csv(train_path,header=None)
             self.train_data =[] 
             
-            print("printing train data length CUHK")
+            print("printing train data length MIT Split")
             print(len(self.train_data_info.index))
 
             for (i,j) in enumerate(np.asarray(self.train_data_info.iloc[:, 1])):
                 try : 
-                    self.train_data.append(self.to_tensor(Image.open("../data/CUHK3/"+j))) 
+                    self.train_data.append(self.to_tensor(Image.open("../MIT_split/"+j))) 
                 except : 
                     print(j)
             
@@ -72,7 +71,7 @@ class MITSplitDataset_v2(Dataset):
             self.test_data =[] 
             for (i,j) in enumerate(np.asarray(self.test_data_info.iloc[:, 1])):
                 try : 
-                    self.test_data.append(self.to_tensor(Image.open("../data/CUHK3/"+j))) 
+                    self.test_data.append(self.to_tensor(Image.open("../MIT_split/"+j))) 
                 except : 
                     print(j)  
 
@@ -88,6 +87,9 @@ class MITSplitDataset_v2(Dataset):
             img, target = self.train_data[index], self.train_labels[index]
         else:
             img, target = self.test_data[index], self.test_labels[index]
+
+        if self.transform:
+            img = self.transform(img)
 
         return (img,target)
 
