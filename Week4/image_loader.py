@@ -1,6 +1,7 @@
 from PIL import Image
 import pickle
 import torch
+from torchvision import transforms
 from torch.utils.data.dataset import Dataset  # For custom datasets
 
 
@@ -35,10 +36,9 @@ class MITSplitDataSet(Dataset):
         return self.data_len
 
 class MITSplitDataset_v2(Dataset):
-    def __init__(self, train_path, test_path, train_labels_path, test_labels_path,train):
+    def __init__(self, train_path, test_path, train_labels_path, test_labels_path, transform, train):
         # Transforms
-        self.to_tensor = transforms.ToTensor()
-        self.transform=None
+        self.transform=transform
         # Read the csv file
         self.train=train
         if self.train:
@@ -84,6 +84,9 @@ class MITSplitDataset_v2(Dataset):
             img, target = self.train_data[index], self.train_labels[index]
         else:
             img, target = self.test_data[index], self.test_labels[index]
+
+        if self.transform:
+            img = self.transform(img)
 
         return (img,target)
 
