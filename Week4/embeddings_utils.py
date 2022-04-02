@@ -33,6 +33,19 @@ def extract_embeddings(dataloader, model, size):
             k += len(images)
     return embeddings, labels
 
+def extract_embeddings_ResNet(dataloader, model, size):
+    with torch.no_grad():
+        model.eval()
+        embeddings = np.zeros((len(dataloader.dataset), size))
+        labels = np.zeros(len(dataloader.dataset))
+        k = 0
+        for images, target in dataloader:
+            images = images.to(device)
+            embeddings[k:k+len(images)] = model(images).squeeze().data.cpu().numpy()
+            labels[k:k+len(images)] = target.numpy()
+            k += len(images)
+    return embeddings, labels
+
 
 def extract_dict_retrieval(dataloader, model, size):
     with torch.no_grad():
@@ -42,6 +55,20 @@ def extract_dict_retrieval(dataloader, model, size):
         for images, target, paths in dataloader:
             images = images.to(device)
             embs_aux = model.get_embedding(images).data.cpu().numpy()
+            for ind in range(len(images)):
+                all_.append({'path': paths[ind], 'emb': embs_aux[ind], 'label': target[ind]})
+            k += len(images)
+    return all_
+
+
+def extract_dict_retrieval_resnet(dataloader, model, size):
+    with torch.no_grad():
+        model.eval()
+        all_ = []
+        k = 0
+        for images, target, paths in dataloader:
+            images = images.to(device)
+            embs_aux = model(images).squeeze().data.cpu().numpy()
             for ind in range(len(images)):
                 all_.append({'path': paths[ind], 'emb': embs_aux[ind], 'label': target[ind]})
             k += len(images)
