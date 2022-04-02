@@ -159,7 +159,7 @@ class EmbeddingNet(nn.Module):
 
 class EmbeddingNet_V2(nn.Module):
     def __init__(self):
-        super(EmbeddingNet, self).__init__()
+        super(EmbeddingNet_V2, self).__init__()
         self.convnet = nn.Sequential(
             nn.BatchNorm2d(3),
             nn.Conv2d(3, 64, 7, padding="same"),
@@ -180,9 +180,7 @@ class EmbeddingNet_V2(nn.Module):
             nn.ReLU(inplace=True),
         )
         self.avgpool = nn.AdaptiveAvgPool2d((1,1))
-        self.fc = nn.Sequential(nn.Linear(238144, 256),
-                                nn.PReLU(),
-                                nn.Linear(256, 256),
+        self.fc = nn.Sequential(nn.Linear(256, 256),
                                 nn.PReLU(),
                                 nn.Linear(256, 2),
                                 )
