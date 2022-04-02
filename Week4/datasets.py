@@ -13,7 +13,6 @@ class SiameseMNIST(Dataset):
 
     def __init__(self, mnist_dataset):
         self.toPil = transforms.ToPILImage()
-
         self.mnist_dataset = mnist_dataset
 
         self.train = self.mnist_dataset.train
@@ -76,7 +75,6 @@ class SiameseMNIST(Dataset):
 
     def __len__(self):
         return len(self.mnist_dataset)
-
 
 class TripletMNIST(Dataset):
     """
@@ -148,14 +146,14 @@ class TripletMNIST(Dataset):
 
 class BalancedBatchSampler(BatchSampler):
     """
-    BatchSampler - from dataset, samples n_classes and within these classes samples n_samples.
+    BatchSampler - from a MNIST-like dataset, samples n_classes and within these classes samples n_samples.
     Returns batches of size n_classes * n_samples
     """
 
     def __init__(self, labels, n_classes, n_samples):
         self.labels = labels
-        self.labels_set = list(set(self.labels))
-        self.label_to_indices = {label: np.where(np.array(self.labels) == label)[0]
+        self.labels_set = list(set(self.labels.numpy()))
+        self.label_to_indices = {label: np.where(self.labels.numpy() == label)[0]
                                  for label in self.labels_set}
         for l in self.labels_set:
             np.random.shuffle(self.label_to_indices[l])
