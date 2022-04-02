@@ -44,21 +44,23 @@ class ModelM3(nn.Module):
 
     
 class ClassificationNet(ModelM3):
-    def __init__(self):
+    def __init__(self, embedding_net, n_classes):
         super(ClassificationNet, self).__init__()
+        self.embedding_net = embedding_net
+        self.n_classes = n_classes
         self.classifier = nn.Sequential(
             nn.Dropout(0.3),
-            nn.Linear(256, 8),
-            nn.LogSoftmax()
+            nn.Linear(256, n_classes),
+            # nn.LogSoftmax()
         )
 
     def forward(self, x):
-        output = super(ClassificationNet, self).forward(x)
+        output = self.embedding_net(x)
         output = self.classifier(output)
         return output
 
     def get_embedding(self, x):
-        return self.forward(x)
+        return self.embedding_net(x)
 
 class ClassificationNet_v2(nn.Module):
     def __init__(self, embedding_net, n_classes):

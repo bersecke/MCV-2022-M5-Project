@@ -35,7 +35,7 @@ class MITSplitDataSet(Dataset):
 
         img = self.img_processor(im_as_im)
         
-        return (img, self.labels[index])
+        return (img, self.labels[index], single_image_path)
 
     def __len__(self):
         return self.data_len
