@@ -8,6 +8,11 @@ from sklearn.neighbors import KNeighborsClassifier
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
+mit_classes = ['coast', 'forest', 'highway', 'inside_city', 'mountain',
+                         'Opencountry', 'street', 'tallbuilding']
+colors = ['#1f77b4', '#2ca02c', '#9467bd', '#d62728',
+            '#ff7f0e', '#8c564b', '#e377c2', '#7f7f7f',]
+
 def plot_embeddings(embeddings, targets, legend_cls, colors, xlim=None, ylim=None):
     plt.figure(figsize=(10,10))
     for i in range(8):
@@ -32,7 +37,6 @@ def extract_embeddings(dataloader, model, size):
             labels[k:k+len(images)] = target.numpy()
             k += len(images)
     return embeddings, labels
-
 
 def extract_dict_retrieval(dataloader, model, size):
     with torch.no_grad():
