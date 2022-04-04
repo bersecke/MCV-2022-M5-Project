@@ -24,4 +24,4 @@
  [Presentation](https://docs.google.com/presentation/d/1_c8Xmt-eo8fplkr-Ea-qxo3oNYhMlsVIL6CokKBMAac/edit?usp=sharing)  
 
 #### Image Retrieval report:  
- [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp)
+ [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp) (WORK IN PROGRESS!)
