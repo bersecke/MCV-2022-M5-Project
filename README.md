@@ -15,14 +15,13 @@
  
 #### Week 3 presentation:  
  [Presentation](https://docs.google.com/presentation/d/1V1lzChQ2tLPWhSbtpTWSgt3XPHLhPH5prjS_FleGtaU/edit?usp=sharing)  
-
-#### Week 4 presentation:  
- [Presentation](https://docs.google.com/presentation/d/1U_mbUrpKM9N8tGdKIMDQz0SEAM2fYO7qvaQz2ZKmm7U/edit?usp=sharing)  
    
 #### Object Classification, Detection and Segmentation report:  
  [Overleaf](https://www.overleaf.com/read/ycpsxdxggnyp)  
- [PDF](https://github.com/bersecke/MCV-2022-M5-Project/blob/main/M5__Object_Detection_%26%20_Segmentation_report.pdf)
+ [PDF](https://github.com/bersecke/MCV-2022-M5-Project/blob/main/M5__Object_Detection_%26%20_Segmentation_report.pdf)  
 
+#### Week 4 presentation:  
+ [Presentation](https://docs.google.com/presentation/d/1_c8Xmt-eo8fplkr-Ea-qxo3oNYhMlsVIL6CokKBMAac/edit?usp=sharing)  
 
 #### Image Retrieval report:  
  [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp)
