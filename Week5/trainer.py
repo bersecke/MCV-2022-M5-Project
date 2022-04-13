@@ -1,12 +1,13 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-
-device = "cuda" if torch.cuda.is_available() else "cpu"
 import wandb
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-        start_epoch=0, wandb_plot=True):
+        start_epoch=0, wandb_plot=False):
     """
     Loaders, model, loss function and metrics should work together for a given task,
     i.e. The model should be able to process data output of loaders,
@@ -37,6 +38,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
+            
         if wandb_plot:
             wandb.log({"train_loss": train_loss, "val_loss": val_loss})
 

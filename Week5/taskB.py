@@ -15,16 +15,14 @@ import numpy as np
 from trainer import fit
 cuda = torch.cuda.is_available()
 
-from networks import EmbeddingNet, TripletNetAdapted
+from networks import EmbeddingNet, TripletNetAdaptedText
 
 cuda = torch.cuda.is_available()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# def aggregation_text(word_embs, axis = 0):
-#     return np.sum(word_embs, axis=axis)
 
 def aggregation_text(word_embs, axis = 0):
-    return np.mean(word_embs, axis=axis)
+    return np.sum(word_embs, axis=axis)
 
 from flickrDataSet import *
 
@@ -32,10 +30,10 @@ from flickrDataSet import *
 train_data = FlickrDataset('./dataset/train_img_embs.pkl', './dataset/train_text_embs.pkl', aggregation=aggregation_text, train= True)
 test_data = FlickrDataset('./dataset/test_img_embs.pkl', './dataset/test_text_embs.pkl', aggregation=aggregation_text, train= False)
 
-triplet_train_dataset = TripletFlickrDataset(train_data) # Returns triplet of images and target same/different
-triplet_test_dataset = TripletFlickrDataset(test_data)
+triplet_train_dataset = TripletFlickrDatasetText(train_data) # Returns triplet of images and target same/different
+triplet_test_dataset = TripletFlickrDatasetText(test_data)
 
-batch_size = 64
+batch_size = 128
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 triplet_train_loader = torch.utils.data.DataLoader(triplet_train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
 triplet_test_loader = torch.utils.data.DataLoader(triplet_test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
@@ -44,11 +42,11 @@ triplet_test_loader = torch.utils.data.DataLoader(triplet_test_dataset, batch_si
 img_emb_dim = 4096
 text_emb_dim = 300
 
-save_path = 'TripletNet_taskA_2layerNet_aggMean.pth'
+save_path = 'TripletNet_taskB.pth'
 
 embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim)
 embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim)
-model = TripletNetAdapted(embedding_net_img, embedding_net_text)
+model = TripletNetAdaptedText(embedding_net_img, embedding_net_text)
 
 
 model.to(device)
