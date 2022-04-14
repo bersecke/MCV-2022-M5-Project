@@ -107,17 +107,16 @@ class TripletNet(nn.Module):
     def get_embedding(self, x):
         return self.embedding_net(x)
 
-class EmbeddingNet(nn.Module):
+class BaselineNet(nn.Module):
     def __init__(self):
-        super(EmbeddingNet, self).__init__()
+        super(BaselineNet, self).__init__()
         self.convnet = nn.Sequential(
-                                    nn.BatchNorm2d(3),
-                                    nn.Conv2d(3, 64, 5), nn.PReLU(),
+                                    nn.Conv2d(3, 32, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2),
                                     nn.Conv2d(32, 64, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2))
 
-        self.fc = nn.Sequential(nn.Linear(53824, 256),
+        self.fc = nn.Sequential(nn.Linear(238144, 256),
                                 nn.PReLU(),
                                 nn.Linear(256, 256),
                                 nn.PReLU(),
@@ -133,8 +132,71 @@ class EmbeddingNet(nn.Module):
     def get_embedding(self, x):
         return self.forward(x)
 
+class EmbeddingNetConv(nn.Module):
+    def __init__(self):
+        super(EmbeddingNet, self).__init__()
+        self.convnet = nn.Sequential(
+                                    nn.Conv2d(3, 32, 5), nn.PReLU(),
+                                    nn.MaxPool2d(2, stride=2),
+                                    nn.Conv2d(32, 64, 5), nn.PReLU(),
+                                    nn.MaxPool2d(2, stride=2))
 
-class EmbeddingNetL2(EmbeddingNet):
+        self.fc = nn.Sequential(nn.Linear(238144, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 2),
+                                )
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = output.view(output.size()[0], -1)
+        output = self.fc(output)
+        return output
+
+    def get_embedding(self, x):
+        return self.forward(x)
+
+class EmbeddingNet_V2(nn.Module):
+    def __init__(self):
+        super(EmbeddingNet_V2, self).__init__()
+        self.convnet = nn.Sequential(
+            nn.BatchNorm2d(3),
+            nn.Conv2d(3, 64, 7, padding="same"),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(2),
+            nn.GroupNorm(1, 64), #Equivalent to layer normalization
+            # nn.Conv2d(64, 128, 3),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding="same"),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1, padding="same"),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(2),
+            nn.GroupNorm(1, 128), #Equivalent to layer normalization
+            # nn.Conv2d(128, 256, 3),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128, padding="same"),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1, padding="same"),
+            nn.ReLU(inplace=True),
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc = nn.Sequential(nn.Linear(256, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 2),
+                                )
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = self.avgpool(output)
+        output = output.view(output.size()[0], -1)
+        output = self.fc(output)
+        return output
+
+    def get_embedding(self, x):
+        return self.forward(x)
+
+
+class EmbeddingNetL2(EmbeddingNetConv):
     def __init__(self):
         super(EmbeddingNetL2, self).__init__()
 
@@ -146,28 +208,60 @@ class EmbeddingNetL2(EmbeddingNet):
     def get_embedding(self, x):
         return self.forward(x)
 
-class ResnetMIT(nn.Module):
-    """
-    Class of the custom CNN
-    """
 
-    def __init__(self):
-        """
-        Initialization of the needed layers
-        """
-        super(ResnetMIT, self).__init__()
 
-        basemodel = torch.hub.load('pytorch/vision:v0.10.0', 'resnet50', pretrained=True)
+#Week 5 networks
 
-        self.base_resnet = torch.nn.Sequential(*(list(basemodel.children())[:-1]))
+class EmbeddingNet(nn.Module):
+    def __init__(self, emd_dim = 4096):
+        super(EmbeddingNet, self).__init__()
 
-        self.fc_layer = nn.Sequential(nn.Linear(2048, 256), nn.Linear(256, 8))
+        self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
+                                nn.ReLU(),
+                                nn.Linear(256, 128),
+                                nn.ReLU(),
+                                )
 
-    def forward(self, x):
-        output = self.base_resnet(x).squeeze()
-        output = self.fc_layer(output)
-        return output
+    def forward(self, x1):
+        output1 = self.fc1(x1)
+        return output1
 
     def get_embedding(self, x):
-        output = self.base_resnet(x).squeeze()
-        return output
+        return self.forward(x)
+
+class TripletNetAdapted(nn.Module):
+    def __init__(self, image_embedding_net, word_embedding_net):
+        super(TripletNetAdapted, self).__init__()
+        self.emb_net = image_embedding_net
+        self.text_net = word_embedding_net
+
+    def forward(self, x1, x2, x3):
+        output1 = self.emb_net(x1)
+        output2 = self.text_net(x2)
+        output3 = self.text_net(x3)
+        return output1, output2, output3
+
+    def get_embedding_img(self, x):
+        return self.emb_net(x)
+    
+    def get_embedding_text(self, x):
+        return self.text_net(x)
+
+
+class TripletNetAdaptedText(nn.Module):
+    def __init__(self, image_embedding_net, word_embedding_net):
+        super(TripletNetAdaptedText, self).__init__()
+        self.image_net = image_embedding_net
+        self.text_net = word_embedding_net
+
+    def forward(self, x1, x2, x3):
+        output1 = self.text_net(x1)
+        output2 = self.image_net(x2)
+        output3 = self.image_net(x3)
+        return output1, output2, output3
+
+    def get_embedding_img(self, x):
+        return self.image_net(x)
+    
+    def get_embedding_text(self, x):
+        return self.text_net(x)
