@@ -107,17 +107,16 @@ class TripletNet(nn.Module):
     def get_embedding(self, x):
         return self.embedding_net(x)
 
-class EmbeddingNet(nn.Module):
+class BaselineNet(nn.Module):
     def __init__(self):
-        super(EmbeddingNet, self).__init__()
+        super(BaselineNet, self).__init__()
         self.convnet = nn.Sequential(
-                                    nn.BatchNorm2d(3),
-                                    nn.Conv2d(3, 64, 5), nn.PReLU(),
+                                    nn.Conv2d(3, 32, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2),
                                     nn.Conv2d(32, 64, 5), nn.PReLU(),
                                     nn.MaxPool2d(2, stride=2))
 
-        self.fc = nn.Sequential(nn.Linear(53824, 256),
+        self.fc = nn.Sequential(nn.Linear(238144, 256),
                                 nn.PReLU(),
                                 nn.Linear(256, 256),
                                 nn.PReLU(),
@@ -126,6 +125,69 @@ class EmbeddingNet(nn.Module):
 
     def forward(self, x):
         output = self.convnet(x)
+        output = output.view(output.size()[0], -1)
+        output = self.fc(output)
+        return output
+
+    def get_embedding(self, x):
+        return self.forward(x)
+
+class EmbeddingNet(nn.Module):
+    def __init__(self):
+        super(EmbeddingNet, self).__init__()
+        self.convnet = nn.Sequential(
+                                    nn.Conv2d(3, 32, 5), nn.PReLU(),
+                                    nn.MaxPool2d(2, stride=2),
+                                    nn.Conv2d(32, 64, 5), nn.PReLU(),
+                                    nn.MaxPool2d(2, stride=2))
+
+        self.fc = nn.Sequential(nn.Linear(238144, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 2),
+                                )
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = output.view(output.size()[0], -1)
+        output = self.fc(output)
+        return output
+
+    def get_embedding(self, x):
+        return self.forward(x)
+
+class EmbeddingNet_V2(nn.Module):
+    def __init__(self):
+        super(EmbeddingNet_V2, self).__init__()
+        self.convnet = nn.Sequential(
+            nn.BatchNorm2d(3),
+            nn.Conv2d(3, 64, 7, padding="same"),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(2),
+            nn.GroupNorm(1, 64), #Equivalent to layer normalization
+            # nn.Conv2d(64, 128, 3),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, groups=64, padding="same"),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=1, padding="same"),
+            nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(2),
+            nn.GroupNorm(1, 128), #Equivalent to layer normalization
+            # nn.Conv2d(128, 256, 3),
+            nn.Conv2d(in_channels=128, out_channels=128, kernel_size=3, groups=128, padding="same"),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=1, padding="same"),
+            nn.ReLU(inplace=True),
+        )
+        self.avgpool = nn.AdaptiveAvgPool2d((1,1))
+        self.fc = nn.Sequential(nn.Linear(256, 256),
+                                nn.PReLU(),
+                                nn.Linear(256, 2),
+                                )
+
+    def forward(self, x):
+        output = self.convnet(x)
+        output = self.avgpool(output)
         output = output.view(output.size()[0], -1)
         output = self.fc(output)
         return output

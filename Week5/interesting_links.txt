@@ -1,0 +1,5 @@
+code of original paper mentioned in slides https://github.com/karpathy/neuraltalk
+
+paper https://cs.stanford.edu/people/karpathy/cvpr2015.pdf
+
+cool BERT (section d) github repo with transformers https://github.com/salesforce/ALBEF/blob/75376bee33df87af9c206b4afb53c876927e7b2b/models/model_retrieval.py#L9
