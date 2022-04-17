@@ -42,22 +42,22 @@ triplet_test_loader = torch.utils.data.DataLoader(triplet_test_dataset, batch_si
 img_emb_dim = 4096
 text_emb_dim = 300
 
-save_path = 'TripletNet_taskB.pth'
+save_path = 'trainedModels/TripletNet_taskB_01margin_50ep.pth'
 
-embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim)
-embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim)
+embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, simple=True)
+embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, simple=True)
 model = TripletNetAdaptedText(embedding_net_img, embedding_net_text)
 
 
 model.to(device)
 
 if not os.path.exists(save_path):
-    margin = 0.5
+    margin = 0.2
     loss_fn = nn.TripletMarginLoss(margin)
     lr = 1e-3
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = lr_scheduler.StepLR(optimizer, 8, gamma=0.9, last_epoch=-1)
-    n_epochs = 50
+    n_epochs = 30
     log_interval = 500
     ## Training !!!
     print('Starting training...!!')

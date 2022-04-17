@@ -213,14 +213,18 @@ class EmbeddingNetL2(EmbeddingNetConv):
 #Week 5 networks
 
 class EmbeddingNet(nn.Module):
-    def __init__(self, emd_dim = 4096):
+    def __init__(self, emd_dim = 4096, simple = False ):
         super(EmbeddingNet, self).__init__()
-
-        self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
-                                nn.ReLU(),
-                                nn.Linear(256, 128),
-                                nn.ReLU(),
-                                )
+        if simple:
+            self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
+                                    nn.ReLU()
+                                    )
+        else:
+            self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
+                                    nn.ReLU(),
+                                    nn.Linear(256, 128),
+                                    nn.ReLU(),
+                                    )
 
     def forward(self, x1):
         output1 = self.fc1(x1)
