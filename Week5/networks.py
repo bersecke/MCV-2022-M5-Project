@@ -213,16 +213,16 @@ class EmbeddingNetL2(EmbeddingNetConv):
 #Week 5 networks
 
 class EmbeddingNet(nn.Module):
-    def __init__(self, emd_dim = 4096, simple = False, activation = nn.ReLU()):
+    def __init__(self, emd_dim = 4096, out_dim = 256, simple = False, activation = nn.ReLU()):
         super(EmbeddingNet, self).__init__()
         if simple:
-            self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
+            self.fc1 = nn.Sequential(nn.Linear(emd_dim, out_dim),
                                    activation
                                     )
         else:
             self.fc1 = nn.Sequential(nn.Linear(emd_dim, 256),
                                     activation,
-                                    nn.Linear(256, 128),
+                                    nn.Linear(256, out_dim),
                                     activation,
                                     )
  
@@ -233,21 +233,6 @@ class EmbeddingNet(nn.Module):
     def get_embedding(self, x):
         return self.forward(x)
 
-
-class EmbeddingNet_2D(nn.Module):
-    def __init__(self, emd_dim = 4096):
-        super(EmbeddingNet_2D, self).__init__()
-
-        self.fc1 = nn.Sequential(nn.Linear(emd_dim, 2),
-                                nn.Tanh()
-                                )
-
-    def forward(self, x1):
-        output1 = self.fc1(x1)
-        return output1
-
-    def get_embedding(self, x):
-        return self.forward(x)
 
 class TripletNetAdapted(nn.Module):
     def __init__(self, image_embedding_net, word_embedding_net):
