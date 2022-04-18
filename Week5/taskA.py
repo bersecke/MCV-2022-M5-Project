@@ -4,8 +4,6 @@ from torch import nn
 import pickle as pkl
 from losses import TripletLoss
 import torch
-import wandb
-# wandb.init(project='M5-Image-to-text', entity='fantastic5')
 
 from torch.optim import lr_scheduler
 import torch.optim as optim
@@ -16,16 +14,16 @@ import numpy as np
 from trainer import fit
 cuda = torch.cuda.is_available()
 
-from networks import EmbeddingNet, TripletNetAdapted
+from networks import EmbeddingNet, TripletNetAdapted, EmbeddingNet_2D
 
 cuda = torch.cuda.is_available()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-# def aggregation_text(word_embs, axis = 0):
-#     return np.sum(word_embs, axis=axis)
-
 def aggregation_text(word_embs, axis = 0):
     return np.sum(word_embs, axis=axis)
+
+# def aggregation_text(word_embs, axis = 0):
+#     return np.mean(word_embs, axis=axis)
 
 from flickrDataSet import *
 
@@ -45,29 +43,30 @@ triplet_test_loader = torch.utils.data.DataLoader(triplet_test_dataset, batch_si
 img_emb_dim = 4096
 text_emb_dim = 300
 
-save_path = 'trainedModels/TripletNet_taskA_02margin_smallerLr.pth'
+save_path = 'trainedModels/TripletNet_taskA_01margin_30ep_tanh_2D.pth'
 
-embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, simple=True)
-embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, simple=True)
+embedding_net_img = EmbeddingNet_2D(emd_dim=img_emb_dim)
+embedding_net_text = EmbeddingNet_2D(emd_dim=text_emb_dim)
 model = TripletNetAdapted(embedding_net_img, embedding_net_text)
 
 
 model.to(device)
 
 if not os.path.exists(save_path):
-    margin = 0.2
+    margin = 0.1
     loss_fn = nn.TripletMarginLoss(margin)
     lr = 1e-3
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = lr_scheduler.StepLR(optimizer, 5, gamma=0.1, last_epoch=-1)
-    n_epochs = 50
+    n_epochs = 30
     log_interval = 500
     ## Training !!!
     print('Starting training...!!')
-    try:
-        fit(triplet_train_loader, triplet_test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, wandb_plot=False)
-    except:
-        exit(-1)
+    # try:
+    fit(triplet_train_loader, triplet_test_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval)
+    # except:
+    #     print('Error during training!!!')
+    #     exit(-1)
     torch.save(model.state_dict(), save_path)
 else:
     print('Loading model...')
