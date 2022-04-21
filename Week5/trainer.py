@@ -1,13 +1,12 @@
 import torch
 import numpy as np
 from tqdm import tqdm
-import wandb
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs, cuda, log_interval, metrics=[],
-        start_epoch=0, wandb_plot=False):
+        start_epoch=0, miner = None):
     """
     Loaders, model, loss function and metrics should work together for a given task,
     i.e. The model should be able to process data output of loaders,
@@ -24,7 +23,7 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         scheduler.step()
 
         # Train stage
-        train_loss, metrics = train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics)
+        train_loss, metrics = train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics, miner)
 
         message = 'Epoch: {}/{}. Train set: Average loss: {:.4f}'.format(epoch + 1, n_epochs, train_loss)
         for metric in metrics:
@@ -38,14 +37,11 @@ def fit(train_loader, val_loader, model, loss_fn, optimizer, scheduler, n_epochs
         for metric in metrics:
             message += '\t{}: {}'.format(metric.name(), metric.value())
 
-            
-        if wandb_plot:
-            wandb.log({"train_loss": train_loss, "val_loss": val_loss})
 
         print(message)
 
 
-def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics):
+def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, metrics, miner):
     for metric in metrics:
         metric.reset()
 
@@ -58,12 +54,16 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         if not type(data) in (tuple, list):
             data = (data,)
         if cuda:
-            data = tuple(d.cuda() for d in data)
+            data = [d.cuda()  for d in data]
             if target is not None:
                 target = target.cuda()
-
-
+        
+        if len(data[1].shape) == 3:
+            data[1] = data[1].reshape(data[1].shape[0] * 5,300) #Batch size * sentences per image
+            data[2] = data[2].reshape(data[2].shape[0] * 5,300) #Batch size * sentences per image
+        
         optimizer.zero_grad()
+        data = tuple(data)
         outputs = model(*data)
 
         if type(outputs) not in (tuple, list):
@@ -73,6 +73,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         if target is not None:
             target = (target,)
             loss_inputs += target
+
+        print(loss_inputs)
 
         loss_outputs = loss_fn(*loss_inputs)
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs

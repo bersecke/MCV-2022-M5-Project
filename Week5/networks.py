@@ -2,6 +2,8 @@ import torch
 from torch import embedding, nn
 import torch.nn.functional as F
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 # Define model
 class ModelM3(nn.Module): 
     def __init__(self):
@@ -233,17 +235,50 @@ class EmbeddingNet(nn.Module):
     def get_embedding(self, x):
         return self.forward(x)
 
+###########
+class EmbeddingNetLSTM(nn.Module):
+    def __init__(self, emd_dim = 300, hidden_size = 256, out_dim = 128, num_layers = 1, activation = nn.ReLU()):
+        super(EmbeddingNetLSTM, self).__init__()
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+        self.lstm = nn.LSTM(input_size=emd_dim, hidden_size=hidden_size, num_layers=num_layers, batch_first = True) #REVISE
+        self.fc = nn.Linear(hidden_size, out_dim, activation)
+ 
+    def forward(self, x):
+        h0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+        c0 = torch.zeros(self.num_layers, x.size(0), self.hidden_size).to(device)
+
+        out, _ = self.lstm(x, (h0, c0))
+        out = self.fc(out[:, -1, :])
+
+        return out
+    
+    def get_embedding(self, x):
+        return self.forward(x)
+
+###########
+
 
 class TripletNetAdapted(nn.Module):
-    def __init__(self, image_embedding_net, word_embedding_net):
+    def __init__(self, image_embedding_net, word_embedding_net, normalization=False):
         super(TripletNetAdapted, self).__init__()
         self.emb_net = image_embedding_net
         self.text_net = word_embedding_net
+        self.normalization = normalization
 
     def forward(self, x1, x2, x3):
         output1 = self.emb_net(x1)
         output2 = self.text_net(x2)
         output3 = self.text_net(x3)
+        if self.normalization:
+            # print('before norm',output2.shape)
+            output2 = nn.functional.normalize(output2, p=2.0).reshape(len(x1),5, output1.shape[1])
+            # print('after norm',output2.shape)
+            output2 = torch.mean(output2, 1)
+            # print('after mean',output2.shape)
+
+            output3 = nn.functional.normalize(output3, p=2.0).reshape(len(x1),5, output1.shape[1])
+            output3 = torch.mean(output3, 1)
         return output1, output2, output3
 
     def get_embedding_img(self, x):
