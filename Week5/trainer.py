@@ -58,12 +58,13 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             if target is not None:
                 target = target.cuda()
         
-        if len(data[1].shape) == 3:
-            data[1] = data[1].reshape(data[1].shape[0] * 5,300) #Batch size * sentences per image
-            data[2] = data[2].reshape(data[2].shape[0] * 5,300) #Batch size * sentences per image
+        # if len(data[1].shape) == 3:
+        #     data[1] = data[1].reshape(data[1].shape[0] * 5,300) #Batch size * sentences per image
+        #     data[2] = data[2].reshape(data[2].shape[0] * 5,300) #Batch size * sentences per image
         
         optimizer.zero_grad()
-        data = tuple(data)
+        data = tuple(data) #ACTIVE?
+
         outputs = model(*data)
 
         if type(outputs) not in (tuple, list):
@@ -72,11 +73,10 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
         loss_inputs = outputs
         if target is not None:
             target = (target,)
-            loss_inputs += target
-
-        print(loss_inputs)
+            loss_inputs += target        
 
         loss_outputs = loss_fn(*loss_inputs)
+
         loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
         losses.append(loss.item())
         total_loss += loss.item()
