@@ -27,6 +27,7 @@ def parse_args():
     parser.add_argument('-n', '--normalize', default=False, type=bool, help='Perform L2 normalization to text embeddings')
     parser.add_argument('-id', '--img_dim', default=4096, type=int, help='Dimensions of image embeddings')
     parser.add_argument('-td', '--txt_dim', default=300, type=int, help='Dimension of text embeddings')
+    parser.add_argument('-s', '--all_sents', default=False, type=bool, help='Process all sentences')
     parser.add_argument('-a', '--average_sents', default=False, type=bool, help='Average all sentences before computing loss')
     parser.add_argument('-i', '--img_pth', default='./dataset/{}_img_embs.pkl', type=str, help='Path to image embeddings')
     parser.add_argument('-t', '--txt_pth', default='./dataset/{}_text_embs.pkl', type=str, help='Path to text embeddings')
@@ -40,8 +41,8 @@ print('Training configuration: ',args)
 cuda = torch.cuda.is_available()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-def aggregation_text(word_embs, axis = 0):
-    return np.sum(word_embs, axis=axis)
+# def aggregation_text(word_embs, axis = 0):
+#     return np.sum(word_embs, axis=axis)
 
 def aggregation_text_concatenate(word_embs, words=20):
     base = np.zeros(words * len(word_embs[0]), dtype=np.float32)
@@ -50,21 +51,23 @@ def aggregation_text_concatenate(word_embs, words=20):
     return base
 
 
-# def aggregation_text(word_embs, axis = 0):
-#     return np.mean(word_embs, axis=axis)
+def aggregation_text(word_embs, axis = 0):
+    return np.sum(word_embs, axis=axis)
 
 from flickrDataSet import *
 
 # Prepare the dataset
 # train_data = FlickrDataset('./dataset/train_img_embs.pkl', './dataset/bertTrain_text_embs.pkl', aggregation=aggregation_text, train= True)
 # test_data = FlickrDataset('./dataset/test_img_embs.pkl', './dataset/bertTest_text_embs.pkl', aggregation=aggregation_text, train= False)
-train_data = FlickrDataset(args.img_pth.format('train'), args.txt_pth.format('train'), aggregation=aggregation_text, train=True, all_sent=args.average_sents)
-test_data = FlickrDataset(args.img_pth.format('test'), args.txt_pth.format('test'), aggregation=aggregation_text, train=False, all_sent=args.average_sents)
+train_data = FlickrDataset(args.img_pth.format('train'), args.txt_pth.format('train'),
+                            aggregation=aggregation_text, train=True, all_sent=args.average_sents, text=args.all_sents)
+test_data = FlickrDataset(args.img_pth.format('test'), args.txt_pth.format('test'),
+                            aggregation=aggregation_text, train=False, all_sent=args.average_sents)
 
 triplet_train_dataset = TripletFlickrDataset(train_data) # Returns triplet of images and target same/different
 triplet_test_dataset = TripletFlickrDataset(test_data)
 
-batch_size = 64
+batch_size = 128
 kwargs = {'num_workers': 1, 'pin_memory': True} if cuda else {}
 triplet_train_loader = torch.utils.data.DataLoader(triplet_train_dataset, batch_size=batch_size, shuffle=True, **kwargs)
 triplet_test_loader = torch.utils.data.DataLoader(triplet_test_dataset, batch_size=batch_size, shuffle=False, **kwargs)
@@ -75,8 +78,8 @@ text_emb_dim = args.txt_dim
 
 save_path = args.output
 
-embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, out_dim=args.dimension, simple=True, activation=nn.PReLU())
-embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, out_dim=args.dimension, simple=True, activation=nn.PReLU())
+embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, out_dim=args.dimension, simple=True, activation=nn.ReLU())
+embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, out_dim=args.dimension, simple=True, activation=nn.ReLU())
 model = TripletNetAdapted(embedding_net_img, embedding_net_text, args.normalize)
 
 

@@ -11,15 +11,15 @@ from torch.utils.data.sampler import BatchSampler
 import pickle as pkl
 
 class FlickrDataset(Dataset):
-    def __init__(self,image_embs, text_embs, aggregation, train, all_sent=False):
+    def __init__(self,image_embs, text_embs, aggregation, train, text=False, all_sent=False):
         self.train = train
+        self.text = text
         self.all_sent = all_sent
         with open(image_embs, 'rb') as op:
             self.train_data = pkl.load(op)
 
         with open(text_embs, 'rb') as op:
             self.text_data = pkl.load(op)
-            print(np.shape(self.text_data))
         
         self.img_texts = []
         for (i,dat) in enumerate(self.train_data):
@@ -31,12 +31,19 @@ class FlickrDataset(Dataset):
         # self.train_data = torch.stack(self.train_data)
 
         self.train_data_len = len(self.train_data)
+        self.text_data_len = len(self.train_data) * len(self.img_texts[0])
+        self.caps_per_image = len(self.img_texts[0])
+        print(f'Img shape: {np.shape(self.train_data)}, Text shape: {np.shape(self.text_data)}, Captions: {self.text_data_len}')
         
     def __getitem__(self, index, rand = True): #ADDED RANDOM SETTING
         if self.all_sent:
             img, text = self.train_data[index], np.array(self.img_texts[index])
-        elif rand == True:
+        elif rand and not self.text:
             img, text = self.train_data[index], self.img_texts[index][random.randint(0, len(self.img_texts[index])-1)]
+        elif rand and self.text: #
+            image_ind = index // self.caps_per_image
+            text_ind = index % self.caps_per_image
+            img, text = self.train_data[image_ind], self.img_texts[image_ind][text_ind]
         else:
             fused_sentences = self.img_texts[index][0]
             i = 1
@@ -53,7 +60,10 @@ class FlickrDataset(Dataset):
         return (img,texts)
 
     def __len__(self):
-        return self.train_data_len
+        if self.text:
+            return self.text_data_len 
+        else:
+            return self.train_data_len
 
 #########
 class FlickrDataset2(Dataset):
@@ -80,6 +90,7 @@ class FlickrDataset2(Dataset):
 
     def __len__(self):
         return self.train_data_len
+
 #########
 
 class TripletFlickrDataset(Dataset):
@@ -117,8 +128,9 @@ class TripletFlickrDataset(Dataset):
             img1 = self.triplets[index][0]
             text_pos = self.triplets[index][1]
             text_neg = self.triplets[index][2]
+            neg_indx = index + 1
 
-        return (img1, text_pos, text_neg), []
+        return (img1, text_pos, text_neg), (index, index, neg_indx)
 
     def __len__(self):
         return len(self.flickr_dataset)

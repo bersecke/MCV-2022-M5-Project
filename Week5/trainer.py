@@ -55,8 +55,8 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             data = (data,)
         if cuda:
             data = [d.cuda()  for d in data]
-            if target is not None:
-                target = target.cuda()
+            # if target is not None:
+            #     target = target.cuda()
         
         # if len(data[1].shape) == 3:
         #     data[1] = data[1].reshape(data[1].shape[0] * 5,300) #Batch size * sentences per image
@@ -71,9 +71,10 @@ def train_epoch(train_loader, model, loss_fn, optimizer, cuda, log_interval, met
             outputs = (outputs,)
 
         loss_inputs = outputs
-        if target is not None:
-            target = (target,)
-            loss_inputs += target        
+        # if target is not None:
+        #     target = (target,)
+        #     loss_inputs += target        
+
 
         loss_outputs = loss_fn(*loss_inputs)
 
@@ -112,17 +113,17 @@ def test_epoch(val_loader, model, loss_fn, cuda, metrics):
                 data = (data,)
             if cuda:
                 data = tuple(d.cuda() for d in data)
-                if target is not None:
-                    target = target.cuda()
+                # if target is not None:
+                #     target = target.cuda()
 
             outputs = model(*data)
 
             if type(outputs) not in (tuple, list):
                 outputs = (outputs,)
             loss_inputs = outputs
-            if target is not None:
-                target = (target,)
-                loss_inputs += target
+            # if target is not None:
+            #     target = (target,)
+            #     loss_inputs += target
 
             loss_outputs = loss_fn(*loss_inputs)
             loss = loss_outputs[0] if type(loss_outputs) in (tuple, list) else loss_outputs
