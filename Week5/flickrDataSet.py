@@ -26,6 +26,12 @@ class FlickrDataset(Dataset):
             self.train_data[i] = dat
             sentences = []
             for sent in self.text_data[i]:
+                # f = open("sentences.txt", "w")
+                # for word in sent:
+                #     for value in word:
+                #         f.write(str(value)+'\n')
+                # f.close()
+                # print(sent)
                 sentences.append(aggregation(sent))
             self.img_texts.append(sentences)
         # self.train_data = torch.stack(self.train_data)

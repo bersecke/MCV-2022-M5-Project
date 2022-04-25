@@ -39,7 +39,7 @@ cuda = torch.cuda.is_available()
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def aggregation_text(word_embs, axis = 0):
-    return np.sum(word_embs, axis=axis)
+    return np.mean(word_embs, axis=axis)
 
 def aggregation_text_concatenate(word_embs, words=20):
     base = np.zeros(words * len(word_embs[0]), dtype=np.float32)
@@ -56,7 +56,7 @@ from flickrDataSet import *
 # Prepare the dataset
 # train_data = FlickrDataset('./dataset/train_img_embs.pkl', './dataset/bertTrain_text_embs.pkl', aggregation=aggregation_text, train= True)
 # test_data = FlickrDataset('./dataset/test_img_embs.pkl', './dataset/bertTest_text_embs.pkl', aggregation=aggregation_text, train= False)
-train_data = FlickrDataset(args.img_pth.format('train'), args.txt_pth.format('train'), aggregation=aggregation_text, train= True, text=True)
+train_data = FlickrDataset(args.img_pth.format('train'), args.txt_pth.format('train'), aggregation=aggregation_text, train= True, text=False)
 test_data = FlickrDataset(args.img_pth.format('test'), args.txt_pth.format('test'), aggregation=aggregation_text, train= False)
 
 triplet_train_dataset = TripletFlickrDatasetText(train_data) # Returns triplet of images and target same/different
@@ -73,8 +73,8 @@ text_emb_dim = args.txt_dim
 
 save_path = args.output
 
-embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, out_dim=args.dimension, simple=True, activation=nn.PReLU())
-embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, out_dim=args.dimension, simple=True, activation=nn.PReLU())
+embedding_net_img = EmbeddingNet(emd_dim=img_emb_dim, out_dim=args.dimension, simple=True, activation=nn.ReLU())
+embedding_net_text = EmbeddingNet(emd_dim=text_emb_dim, out_dim=args.dimension, simple=True, activation=nn.ReLU())
 model = TripletNetAdaptedText(embedding_net_img, embedding_net_text)
 
 
