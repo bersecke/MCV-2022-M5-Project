@@ -23,5 +23,8 @@
 #### Week 4 presentation:  
  [Presentation](https://docs.google.com/presentation/d/1_c8Xmt-eo8fplkr-Ea-qxo3oNYhMlsVIL6CokKBMAac/edit?usp=sharing)  
 
+#### Week 5 presentation:  
+ [Presentation](https://docs.google.com/presentation/d/1jtso7HS3KrWTDMjB59--CNCKUT9-QlgS4NBpKQu1atw/edit?usp=sharing)  
+
 #### Image Retrieval report:  
  [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp) (WORK IN PROGRESS!)
