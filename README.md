@@ -27,4 +27,6 @@
  [Presentation](https://docs.google.com/presentation/d/1jtso7HS3KrWTDMjB59--CNCKUT9-QlgS4NBpKQu1atw/edit?usp=sharing)  
 
 #### Image Retrieval report:  
- [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp) (WORK IN PROGRESS!)
+ [Overleaf](https://www.overleaf.com/read/psscjwrqbtkp)  
+ [PDF](https://github.com/bersecke/MCV-2022-M5-Project/blob/main/M5___Retrieval_with_Deep_Metric_Learning.pdf)
+ 
